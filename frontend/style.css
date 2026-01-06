@@ -1,0 +1,80 @@
+/* Reset */
+* { box-sizing: border-box; margin:0; padding:0; }
+body { font-family:'Poppins', sans-serif; background:#f3f3f3; color:#333; line-height:1.5; }
+
+/* Header */
+header {
+    text-align:center;
+    padding:40px 20px;
+    background: linear-gradient(90deg,#ff9a3c,#ff6b00); /* degradado naranja y naranja oscuro */
+    color:white;
+    box-shadow:0 5px 15px rgba(0,0,0,0.2);
+}
+
+
+/* Secciones */
+.menu-section { max-width:1200px; margin:50px auto; padding:0 20px; }
+.menu-section h2 { font-size:2em; color:#ff6b6b; text-align:center; margin-bottom:30px; font-weight:600; position: relative; }
+.menu-section h2::after { content:''; width:60px; height:3px; background:#ff6b6b; display:block; margin:10px auto 0; border-radius:2px; }
+
+/* Grid tarjetas */
+.menu-category { display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:25px; justify-items:center; }
+
+/* Tarjetas */
+.menu-item { background:white; border-radius:20px; overflow:hidden; text-align:center; box-shadow:0 10px 20px rgba(0,0,0,0.1); transition:transform 0.3s,box-shadow 0.3s; }
+.menu-item:hover { transform:translateY(-10px); box-shadow:0 15px 25px rgba(0,0,0,0.2); }
+.menu-item img { width:100%; height:180px; object-fit:cover; }
+.menu-item h3 { font-size:1.3em; color:#ff6b6b; margin:15px 0 5px; }
+.menu-item p { font-size:0.95em; padding:0 10px; margin-bottom:10px; }
+.menu-item button { background:#ff6b6b; color:white; border:none; padding:10px 20px; margin-bottom:15px; border-radius:12px; font-size:1em; font-weight:600; cursor:pointer; transition:0.3s; }
+.menu-item button:hover { background:#f06595; }
+
+/* Carrito */
+#cart-container { max-width:600px; margin:50px auto; background:white; padding:25px; border-radius:20px; box-shadow:0 10px 20px rgba(0,0,0,0.1); }
+#cart div { margin-bottom:10px; font-size:1.05em; display:flex; justify-content:space-between; align-items:center; }
+#cart div button { background:red; color:white; border:none; border-radius:8px; padding:2px 8px; cursor:pointer; }
+#total { font-weight:bold; margin-top:10px; font-size:1.2em; text-align:right; }
+#placeOrder { background-color:#25D366; color:white; border:none; padding:14px 20px; font-size:1.1em; font-weight:600; border-radius:12px; cursor:pointer; width:100%; margin-top:10px; transition:0.3s; }
+#placeOrder:hover { background-color:#128C7E; }
+
+@media(max-width:768px){ .menu-category { grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); } }
+
+/* Contenedor de cada categoría de menú */
+.menu-category {
+    display: block; /* cada producto se apila verticalmente */
+    margin-bottom: 30px;
+}
+
+/* Cada tarjeta del menú */
+.menu-item {
+    display: block; /* forzar block */
+    width: 30%; /* ocupa todo el contenedor */
+    margin-bottom: 20px; /* espacio entre tarjetas */
+    border-radius: 15px;
+    background: white;
+    padding: 15px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+/* Imagen de la tarjeta */
+.menu-item img {
+    width: 50%;
+    height: auto;
+    border-radius: 10px;
+    margin-bottom: 10px;
+}
+
+/* Titulos y descripción */
+.menu-item h3 {
+    font-size: 1.3em;
+    margin-bottom: 5px;
+}
+
+.menu-item p {
+    font-size: 1em;
+    margin-bottom: 10px;
+}
+
+.menu-item button {
+    display: inline-block;
+}

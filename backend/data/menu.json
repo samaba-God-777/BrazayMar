@@ -1,0 +1,18 @@
+[
+  {
+    "id": "3c31f5db-e89a-405b-9c84-c5a0ee6cbc87",
+    "name": "hamburguesa",
+    "description": "la patrona ",
+    "price": 10,
+    "category": "Hamburguesas",
+    "image": "1767731995541.jpg"
+  },
+  {
+    "id": "7ea80d2e-6706-4d22-b170-52be0d3413d1",
+    "name": "carne asada",
+    "description": "carne",
+    "price": 4,
+    "category": "Especiales",
+    "image": "1767732035191.jpg"
+  }
+]

@@ -1,0 +1,43 @@
+[
+  {
+    "customerName": "luis",
+    "phone": "678909",
+    "address": "calle principal, san jose",
+    "items": [],
+    "total": 0
+  },
+  {
+    "customerName": "luis morenos",
+    "phone": "6512409",
+    "address": "san jose meteti",
+    "items": [
+      {
+        "id": 1,
+        "name": "Pollo a la brasa",
+        "description": "Delicioso pollo sazonado",
+        "price": 10,
+        "image": "pollo.jpg",
+        "quantity": 1
+      }
+    ],
+    "total": 10
+  },
+  {
+    "customerName": "carlos moreno",
+    "phone": "6578-1234",
+    "address": "villa darien",
+    "items": [],
+    "total": 0,
+    "id": "26e681d0-24e1-418b-aae9-11ebce8a82bd",
+    "date": "2026-01-06T18:20:11.334Z"
+  },
+  {
+    "customerName": "luis moreno",
+    "phone": "6567890",
+    "address": "san jose",
+    "items": [],
+    "total": 0,
+    "id": "9fd26226-3c47-43d7-ba37-317d8143704c",
+    "date": "2026-01-06T18:30:18.389Z"
+  }
+]

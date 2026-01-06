@@ -1,0 +1,86 @@
+/* Layout administrador */
+.admin-container {
+    display: flex;
+    min-height: calc(100vh - 80px); /* restando header */
+}
+
+.admin-menu {
+    width: 200px;
+    background: #ff9a3c;
+    padding: 20px;
+    box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+}
+
+.admin-menu ul {
+    list-style: none;
+}
+
+.admin-menu li {
+    margin-bottom: 15px;
+}
+
+.admin-menu button {
+    width: 100%;
+    padding: 10px;
+    border:none;
+    border-radius:10px;
+    cursor:pointer;
+    font-weight:600;
+    color:white;
+    background: #ff6b00;
+    transition: 0.3s;
+}
+
+.admin-menu button:hover {
+    background: #e05500;
+}
+
+.admin-content {
+    flex:1;
+    padding: 30px;
+    background: #f8f8f8;
+}
+
+/* Secciones */
+.admin-section {
+    background:white;
+    padding:20px;
+    border-radius:15px;
+    box-shadow:0 5px 15px rgba(0,0,0,0.1);
+}
+
+/* Inputs y botones dentro de sección */
+.admin-section input, .admin-section select, .admin-section button {
+    margin-bottom: 15px;
+    width: 100%;
+    padding:10px;
+    border-radius:8px;
+    border:1px solid #ccc;
+    font-size:1em;
+}
+
+.admin-section button {
+    background:#ff6b00;
+    color:white;
+    font-weight:600;
+    border:none;
+}
+
+.admin-section button:hover {
+    background:#e05500;
+}
+
+/* Responsive */
+@media(max-width:768px){
+    .admin-container {
+        flex-direction: column;
+    }
+    .admin-menu {
+        width:100%;
+        display:flex;
+        justify-content:space-around;
+    }
+    .admin-menu li {
+        margin-bottom:0;
+    }
+}

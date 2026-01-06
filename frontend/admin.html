@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Brazas$Mar</title>
+<link rel="stylesheet" href="admin.css">
+</head>
+<body>
+
+<header>
+    <h1>Panel Administrador</h1>
+</header>
+
+<div class="admin-container">
+    <nav class="admin-menu">
+        <ul>
+            <li><button onclick="showSection('add')">Agregar Producto</button></li>
+            <li><button onclick="showSection('list')">Ver Productos</button></li>
+        </ul>
+    </nav>
+
+    <main class="admin-content">
+        <section id="add" class="admin-section">
+            <form id="productForm">
+                <input type="text" name="name" placeholder="Nombre del producto" required>
+                <input type="text" name="description" placeholder="Descripción" required>
+                <input type="number" name="price" placeholder="Precio" required>
+                <select name="category" required>
+                    <option value="">Selecciona categoría</option>
+                    <option value="Hamburguesas">Hamburguesas</option>
+                    <option value="Especiales">Especiales</option>
+                    <option value="Combo Cerdo">Combo Cerdo</option>
+                </select>
+                <input type="file" name="image" accept="image/*">
+                <button type="submit">Agregar producto</button>
+            </form>
+            <div id="message"></div>
+        </section>
+
+        <section id="list" class="admin-section" style="display:none;">
+            <h2>Productos existentes</h2>
+            <div id="productList"></div>
+        </section>
+    </main>
+</div>
+
+<script src="admin.js"></script>
+</body>
+</html>
