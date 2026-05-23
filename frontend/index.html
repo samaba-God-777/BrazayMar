@@ -6,6 +6,7 @@
     <title>Brazas$Mar - Pedidos</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="menu-showcase.css">
+    <link rel="stylesheet" href="products-sidebar.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
 </head>
@@ -21,7 +22,7 @@
             </div>
 
             <div class="cart-floating" onclick="toggleCart()" role="button" aria-label="Abrir carrito">
-                <i class="fas fa-shopping-cart"></i>
+                <i class="fanpms fa-shopping-cart"></i>
                 <span class="cart-count">0</span>
             </div>
         </section>
@@ -42,7 +43,47 @@
         </div>
     </nav>
 
-    <main class="menu-page">
+    <div class="page-layout">
+
+        <!-- ===== SIDEBAR DE PRODUCTOS ===== -->
+        <aside class="products-sidebar" id="productsSidebar" aria-label="Lista de productos">
+            <div class="psidebar__header">
+                <i class="fas fa-utensils"></i>
+                <span>Menú &amp; Precios</span>
+                <button class="psidebar__toggle" id="sidebarToggle" aria-label="Ocultar sidebar" title="Ocultar">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+            </div>
+
+            <div class="psidebar__search">
+                <i class="fas fa-search"></i>
+                <input type="text" id="sidebarSearch" placeholder="Buscar producto..." aria-label="Buscar producto">
+            </div>
+
+            <div class="psidebar__body" id="sidebarBody">
+                <!-- Esqueleto de carga -->
+                <div class="psidebar__skeleton" id="sidebarSkeleton">
+                    <div class="skeleton-cat"></div>
+                    <div class="skeleton-item"></div>
+                    <div class="skeleton-item"></div>
+                    <div class="skeleton-item"></div>
+                    <div class="skeleton-cat"></div>
+                    <div class="skeleton-item"></div>
+                    <div class="skeleton-item"></div>
+                </div>
+            </div>
+
+            <div class="psidebar__footer">
+                <span id="sidebarProductCount">Cargando...</span>
+            </div>
+        </aside>
+
+        <!-- Botón para reabrir sidebar (visible cuando está colapsado) -->
+        <button class="psidebar__open-btn" id="sidebarOpenBtn" aria-label="Ver menú" title="Ver menú" hidden>
+            <i class="fas fa-utensils"></i>
+        </button>
+
+        <main class="menu-page">
         <!-- Hamburguesas -->
         <section id="menu-hamburguesas" class="menu-section" data-category="hamburguesas">
             <header class="menu-section__intro">
@@ -231,7 +272,9 @@
                 </div>
             </div>
         </section>
-    </main>
+        </main>
+
+    </div><!-- /.page-layout -->
 
     <footer class="site-footer">
         <div class="footer-content">
@@ -255,5 +298,6 @@
 
     <script src="config.js"></script>
     <script src="app.js"></script>
+    <script src="products-sidebar.js"></script>
 </body>
 </html>
