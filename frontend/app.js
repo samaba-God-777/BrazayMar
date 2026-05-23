@@ -982,3 +982,16 @@ function mostrarProductosDeEjemplo() {
         mostrarProductosEnSlideshow(categoriaId, productos);
     }
 }
+
+// En app.js, después de cargar productos
+window.addToCart = function(productId) {
+    // Tu lógica existente para agregar al carrito
+    // ...
+};
+
+// Función para actualizar el menú (usada desde el admin)
+window.actualizarMenu = function() {
+    cargarProductos();
+    // Notificar a otros componentes
+    localStorage.setItem('menu_updated', Date.now().toString());
+};
