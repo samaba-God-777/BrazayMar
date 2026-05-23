@@ -1,50 +1,413 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Admin Brazas$Mar</title>
-<link rel="stylesheet" href="admin.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - Brazas$Mar</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="admin.css">
+    <link rel="stylesheet" href="admin-pedidos-cards.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap">
 </head>
 <body>
+    <!-- Admin Container -->
+    <div class="admin-wrapper">
+        <!-- Sidebar -->
+        <aside class="admin-sidebar">
+            <div class="sidebar-header">
+                <div class="logo-container">
+                    <div class="logo-icon">
+                        <i class="fas fa-utensils"></i>
+                    </div>
+                    <div class="logo-text">
+                        <h2>Brazas<span class="logo-accent">$</span>Mar</h2>
+                        <p>Admin Panel</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="sidebar-nav">
+                <div class="nav-group">
+                    <h3 class="nav-title">Menú</h3>
+                    <button class="nav-item active" onclick="showSection('add')">
+                        <div class="nav-icon">
+                            <i class="fas fa-plus-circle"></i>
+                        </div>
+                        <span class="nav-text">Agregar Producto</span>
+                        <span class="nav-badge" id="counter-add">+</span>
+                    </button>
+                    
+                    <button class="nav-item" onclick="showSection('list')">
+                        <div class="nav-icon">
+                            <i class="fas fa-list"></i>
+                        </div>
+                        <span class="nav-text">Productos</span>
+                        <span class="nav-badge" id="counter-list">0</span>
+                    </button>
 
-<header>
-    <h1>Panel Administrador</h1>
-</header>
+                    <button class="nav-item" onclick="showSection('pedidos')" id="nav-pedidos">
+                        <div class="nav-icon">
+                            <i class="fas fa-receipt"></i>
+                        </div>
+                        <span class="nav-text">Pedidos</span>
+                        <span class="nav-badge nav-badge--alert" id="orders-badge" style="display:none;">0</span>
+                    </button>
+                </div>
+                
+                <div class="nav-group">
+                    <h3 class="nav-title">Categorías</h3>
+                    <div class="category-stats">
+                        <div class="stat-item">
+                            <span class="stat-label">🍔 Hamburguesas</span>
+                            <span class="stat-count" id="counter-hamburguesas">0</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">⭐ Especiales</span>
+                            <span class="stat-count" id="counter-especiales">0</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">🐷 Combo Cerdo</span>
+                            <span class="stat-count" id="counter-cerdo">0</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="nav-group">
+                    <h3 class="nav-title">Sistema</h3>
+                    <a href="/" class="nav-item" target="_blank">
+                        <div class="nav-icon">
+                            <i class="fas fa-eye"></i>
+                        </div>
+                        <span class="nav-text">Ver Tienda</span>
+                    </a>
+                    
+                    <button class="nav-item" onclick="refreshData()">
+                        <div class="nav-icon">
+                            <i class="fas fa-sync-alt"></i>
+                        </div>
+                        <span class="nav-text">Actualizar</span>
+                    </button>
+                    
+                    <button class="nav-item logout" onclick="logout()">
+                        <div class="nav-icon">
+                            <i class="fas fa-sign-out-alt"></i>
+                        </div>
+                        <span class="nav-text">Cerrar Sesión</span>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="sidebar-footer">
+                <div class="system-info">
+                    <div class="info-item">
+                        <i class="fas fa-database"></i>
+                        <span id="storage-used">0 productos</span>
+                    </div>
+                    <div class="info-item">
+                        <i class="fas fa-clock"></i>
+                        <span id="last-update">Hoy</span>
+                    </div>
+                </div>
+            </div>
+        </aside>
+        
+        <!-- Main Content -->
+        <main class="admin-main">
+            <!-- Header -->
+            <header class="admin-header">
+                <div class="header-left">
+                    <h1 id="section-title">Agregar Producto</h1>
+                    <p id="section-description">Administra los productos del menú</p>
+                </div>
+                
+                <div class="header-right">
+                    <button type="button" class="admin-notify-btn" id="adminNotifyBtn" title="Notificaciones de pedidos" onclick="toggleNotificationsPanel()">
+                        <i class="fas fa-bell"></i>
+                        <span class="admin-notify-badge" id="adminNotifyBadge" style="display:none;">0</span>
+                    </button>
+                    <div class="header-stats">
+                        <div class="stat-card">
+                            <div class="stat-icon success">
+                                <i class="fas fa-check-circle"></i>
+                            </div>
+                            <div class="stat-info">
+                                <span class="stat-value" id="total-products">0</span>
+                                <span class="stat-label">Productos</span>
+                            </div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-icon warning">
+                                <i class="fas fa-star"></i>
+                            </div>
+                            <div class="stat-info">
+                                <span class="stat-value" id="featured-products">0</span>
+                                <span class="stat-label">Destacados</span>
+                            </div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-icon primary">
+                                <i class="fas fa-tags"></i>
+                            </div>
+                            <div class="stat-info">
+                                <span class="stat-value" id="discount-products">0</span>
+                                <span class="stat-label">En Oferta</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+            
+            <!-- Content Area -->
+            <div class="admin-content">
+                <!-- Add Product Section -->
+                <section id="add" class="admin-section active">
+                    <div class="section-card">
+                        <div class="card-header">
+                            <h2><i class="fas fa-plus-circle"></i> Nuevo Producto</h2>
+                            <p>Completa el formulario para agregar un producto al menú</p>
+                        </div>
+                        
+                        <form id="productForm" class="modern-form">
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label for="name">
+                                        <i class="fas fa-tag"></i> Nombre del Producto
+                                        <span class="required">*</span>
+                                    </label>
+                                    <input type="text" id="name" name="name" required 
+                                           placeholder="Ej: Hamburguesa Especial" 
+                                           class="form-control">
+                                    <div class="form-hint">Máximo 50 caracteres</div>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="price">
+                                        <i class="fas fa-dollar-sign"></i> Precio
+                                        <span class="required">*</span>
+                                    </label>
+                                    <div class="input-with-icon">
+                                        <i class="fas fa-money-bill-wave"></i>
+                                        <input type="number" id="price" name="price" 
+                                               step="0.01" min="0" required 
+                                               placeholder="0.00" class="form-control">
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="description">
+                                    <i class="fas fa-align-left"></i> Descripción
+                                    <span class="required">*</span>
+                                </label>
+                                <textarea id="description" name="description" 
+                                          rows="3" required 
+                                          placeholder="Describe el producto detalladamente..."
+                                          class="form-control"></textarea>
+                                <div class="form-hint">Describe los ingredientes y características especiales</div>
+                            </div>
+                            
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label for="category">
+                                        <i class="fas fa-filter"></i> Categoría
+                                        <span class="required">*</span>
+                                    </label>
+                                    <div class="select-wrapper">
+                                        <select id="category" name="category" required class="form-control">
+                                            <option value="">Seleccionar categoría</option>
+                                            <option value="hamburguesas">🍔 Hamburguesas</option>
+                                            <option value="especiales">⭐ Especiales</option>
+                                            <option value="cerdo">🐷 Combo Cerdo</option>
+                                        </select>
+                                        <i class="fas fa-chevron-down"></i>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="rating">
+                                        <i class="fas fa-star"></i> Calificación
+                                    </label>
+                                    <div class="rating-input">
+                                        <select id="rating" name="rating" class="form-control">
+                                            <option value="4.5">⭐⭐⭐⭐☆ 4.5</option>
+                                            <option value="5.0">⭐⭐⭐⭐⭐ 5.0</option>
+                                            <option value="4.0">⭐⭐⭐⭐ 4.0</option>
+                                            <option value="3.5">⭐⭐⭐☆ 3.5</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label for="image">
+                                        <i class="fas fa-image"></i> Imagen del Producto
+                                    </label>
+                                    <div class="file-upload">
+                                        <input type="file" id="image" name="image" 
+                                               accept="image/*" class="file-input">
+                                        <label for="image" class="file-label">
+                                            <i class="fas fa-cloud-upload-alt"></i>
+                                            <span>Haz clic para subir imagen</span>
+                                            <small>PNG, JPG, WEBP (max 5MB)</small>
+                                        </label>
+                                    </div>
+                                    <div id="imagePreview" class="image-preview"></div>
+                                </div>
+                            </div>
+                            
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <div class="checkbox-group">
+                                        <input type="checkbox" id="featured" name="featured" class="checkbox-input">
+                                        <label for="featured" class="checkbox-label">
+                                            <div class="checkbox-custom">
+                                                <i class="fas fa-check"></i>
+                                            </div>
+                                            <span>Marcar como destacado</span>
+                                        </label>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="discount">
+                                        <i class="fas fa-percentage"></i> Descuento (%)
+                                    </label>
+                                    <div class="range-wrapper">
+                                        <input type="range" id="discountRange" min="0" max="50" value="0" class="range-slider">
+                                        <div class="range-value">
+                                            <input type="number" id="discount" name="discount" 
+                                                   min="0" max="50" value="0" class="form-control">
+                                            <span>%</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div id="message" class="message"></div>
+                            
+                            <div class="form-actions">
+                                <button type="button" class="btn-secondary" onclick="resetForm()">
+                                    <i class="fas fa-eraser"></i> Limpiar
+                                </button>
+                                <button type="submit" class="btn-primary" id="submitBtn">
+                                    <i class="fas fa-plus"></i> Agregar Producto
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </section>
+                
+                <!-- Products List Section -->
+                <section id="list" class="admin-section">
+                    <div class="section-card">
+                        <div class="card-header">
+                            <div class="header-content">
+                                <div>
+                                    <h2><i class="fas fa-list"></i> Lista de Productos</h2>
+                                    <p>Gestiona todos los productos del menú</p>
+                                </div>
+                                <div class="header-actions">
+                                    <div class="search-box">
+                                        <i class="fas fa-search"></i>
+                                        <input type="text" id="searchInput" 
+                                               placeholder="Buscar productos..." 
+                                               class="search-input">
+                                    </div>
+                                    <button class="btn-icon" onclick="refreshData()" title="Actualizar">
+                                        <i class="fas fa-sync-alt"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="table-container">
+                            <div class="table-header">
+                                <div class="table-filters">
+                                    <div class="filter-group">
+                                        <select id="filterCategory" class="filter-select">
+                                            <option value="">Todas las categorías</option>
+                                            <option value="hamburguesas">Hamburguesas</option>
+                                            <option value="especiales">Especiales</option>
+                                            <option value="cerdo">Combo Cerdo</option>
+                                        </select>
+                                    </div>
+                                    <div class="filter-group">
+                                        <select id="filterFeatured" class="filter-select">
+                                            <option value="">Todos</option>
+                                            <option value="true">Destacados</option>
+                                            <option value="false">No destacados</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div id="productList" class="products-grid">
+                                <!-- Los productos se cargarán aquí dinámicamente -->
+                                <div class="empty-state">
+                                    <div class="empty-icon">
+                                        <i class="fas fa-box-open"></i>
+                                    </div>
+                                    <h3>No hay productos</h3>
+                                    <p>Agrega tu primer producto usando el formulario</p>
+                                    <button class="btn-secondary" onclick="showSection('add')">
+                                        <i class="fas fa-plus"></i> Agregar Producto
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
 
-<div class="admin-container">
-    <nav class="admin-menu">
-        <ul>
-            <li><button onclick="showSection('add')">Agregar Producto</button></li>
-            <li><button onclick="showSection('list')">Ver Productos</button></li>
-        </ul>
-    </nav>
+                <!-- Pedidos de clientes -->
+                <section id="pedidos" class="admin-section">
+                    <div class="section-card">
+                        <div class="card-header">
+                            <div class="header-content">
+                                <div>
+                                    <h2><i class="fas fa-receipt"></i> Pedidos de clientes</h2>
+                                    <p>Pedidos enviados desde la tienda · actualización automática</p>
+                                </div>
+                                <div class="header-actions">
+                                    <button type="button" class="btn-icon" onclick="cargarPedidosAdmin()" title="Actualizar pedidos">
+                                        <i class="fas fa-sync-alt"></i>
+                                    </button>
+                                    <button type="button" class="btn-secondary" onclick="solicitarPermisoNotificaciones()" style="padding:10px 16px;flex:none;">
+                                        <i class="fas fa-bell"></i> Activar alertas
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="pedidos-lista-wrap">
+                            <div class="pedidos-lista-header-bar">
+                                <h2><i class="fas fa-list-ul"></i> Listado en tiempo real</h2>
+                                <span class="pedidos-count-badge" id="pedidosCountBadge">0 pedidos</span>
+                            </div>
+                            <div class="pedidos-lista pedidos-lista--grid" id="listaPedidosAdmin"></div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </main>
 
-    <main class="admin-content">
-        <section id="add" class="admin-section">
-            <form id="productForm">
-                <input type="text" name="name" placeholder="Nombre del producto" required>
-                <input type="text" name="description" placeholder="Descripción" required>
-                <input type="number" name="price" placeholder="Precio" required>
-                <select name="category" required>
-                    <option value="">Selecciona categoría</option>
-                    <option value="Hamburguesas">Hamburguesas</option>
-                    <option value="Especiales">Especiales</option>
-                    <option value="Combo Cerdo">Combo Cerdo</option>
-                </select>
-                <input type="file" name="image" accept="image/*">
-                <button type="submit">Agregar producto</button>
-            </form>
-            <div id="message"></div>
-        </section>
-
-        <section id="list" class="admin-section" style="display:none;">
-            <h2>Productos existentes</h2>
-            <div id="productList"></div>
-        </section>
-    </main>
-</div>
-
-<script src="admin.js"></script>
+        <div id="adminNotificationsPanel" class="admin-notifications-panel" hidden>
+            <div class="admin-notifications-panel__head">
+                <h3><i class="fas fa-bell"></i> Notificaciones</h3>
+                <button type="button" onclick="toggleNotificationsPanel()" aria-label="Cerrar">&times;</button>
+            </div>
+            <ul id="adminNotificationsList" class="admin-notifications-list"></ul>
+        </div>
+        
+        <!-- Toast Notifications -->
+        <div id="toastContainer" class="toast-container"></div>
+    </div>
+    
+    <script src="config.js"></script>
+    <script src="auth.js"></script>
+    <script src="admin.js"></script>
+    <script src="admin-orders.js"></script>
 </body>
 </html>

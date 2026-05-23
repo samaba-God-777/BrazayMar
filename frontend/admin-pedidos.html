@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Pedidos - Brazas$Mar</title>
+    <link rel="stylesheet" href="admin-pedidos.css">
+    <link rel="stylesheet" href="admin-pedidos-cards.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
+</head>
+<body>
+
+<div class="pedidos-admin-container">
+
+    <header class="pedidos-header">
+        <div>
+            <h1><i class="fas fa-receipt"></i> Panel de Pedidos</h1>
+            <p class="pedidos-header__subtitle">Pedidos recibidos desde la tienda · MongoDB</p>
+        </div>
+
+        <div class="header-stats">
+            <div class="stat-item">
+                <span id="totalPedidos" class="stat-value">0</span>
+                <span class="stat-label">Total</span>
+            </div>
+            <div class="stat-item">
+                <span id="pendientes" class="stat-value">0</span>
+                <span class="stat-label">Pendientes</span>
+            </div>
+            <div class="stat-item">
+                <span id="hoy" class="stat-value">0</span>
+                <span class="stat-label">Hoy</span>
+            </div>
+        </div>
+
+        <div class="header-actions">
+            <button class="btn-refresh" onclick="cargarPedidos()">
+                <i class="fas fa-sync"></i> Actualizar
+            </button>
+            <a href="/admin" class="btn-refresh btn-refresh--outline">
+                <i class="fas fa-arrow-left"></i> Productos
+            </a>
+        </div>
+    </header>
+
+    <section class="pedidos-lista-wrap">
+        <div class="pedidos-lista-header-bar">
+            <h2><i class="fas fa-list-ul"></i> Listado de pedidos</h2>
+            <span class="pedidos-count-badge" id="pedidosCountBadge">0 pedidos</span>
+        </div>
+        <div class="pedidos-lista pedidos-lista--grid" id="listaPedidos"></div>
+    </section>
+
+</div>
+
+<script src="config.js"></script>
+<script src="auth.js"></script>
+<script>
+const API = AppConfig.API_BASE_URL;
+let pedidos = [];
+
+async function cargarPedidos() {
+    const cont = document.getElementById('listaPedidos');
+    cont.innerHTML = '<p style="text-align:center;padding:40px;"><i class="fas fa-spinner fa-spin"></i> Cargando pedidos...</p>';
+
+    try {
+        const response = await AuthService.fetchWithAuth(`${API}/orders`);
+        pedidos = await AppConfig.parseJsonResponse(response);
+        if (!response.ok) throw new Error('Error al cargar');
+
+        renderPedidos();
+    } catch (err) {
+        cont.innerHTML = `<p style="text-align:center;color:#ef4444;padding:40px;">${err.message}</p>`;
+    }
+}
+
+function renderPedidos() {
+    const cont = document.getElementById('listaPedidos');
+    cont.innerHTML = '';
+
+    let pendientes = 0;
+    const hoy = new Date().toDateString();
+
+    const badge = document.getElementById('pedidosCountBadge');
+    if (badge) badge.textContent = `${pedidos.length} pedido${pedidos.length === 1 ? '' : 's'}`;
+
+    if (pedidos.length === 0) {
+        cont.innerHTML = `
+            <div class="pedidos-empty">
+                <i class="fas fa-inbox"></i>
+                <h3>No hay pedidos aún</h3>
+                <p>Los pedidos enviados desde la tienda aparecerán aquí.</p>
+            </div>`;
+    }
+
+    pedidos.forEach((p) => {
+        if (p.estado === 'pendiente') pendientes++;
+
+        const nombre = p.cliente?.nombre || 'Sin nombre';
+        const telefono = p.cliente?.telefono || '—';
+        const direccion = p.cliente?.direccion || '—';
+        const itemsHtml = (p.productos || [])
+            .map((i) => `<li><span>${i.cantidad}x</span> ${i.nombre} <em>B/ ${(i.precio * i.cantidad).toFixed(2)}</em></li>`)
+            .join('') || '<li>Sin productos</li>';
+        const total = p.totales?.total ?? 0;
+        const fecha = p.fecha ? new Date(p.fecha).toLocaleString('es-PA') : '—';
+        const estado = p.estado || 'pendiente';
+        const orderId = p.orderId || p.id;
+
+        cont.innerHTML += `
+            <article class="pedido-card">
+                <header class="pedido-card__head">
+                    <div>
+                        <span class="pedido-card__id">${orderId}</span>
+                        <time class="pedido-card__fecha">${fecha}</time>
+                    </div>
+                    <span class="estado estado--${estado}">${estado}</span>
+                </header>
+                <div class="pedido-card__cliente">
+                    <p><i class="fas fa-user"></i> <strong>${nombre}</strong></p>
+                    <p><i class="fas fa-phone"></i> ${telefono}</p>
+                    <p><i class="fas fa-map-marker-alt"></i> ${direccion}</p>
+                </div>
+                <ul class="pedido-card__items">${itemsHtml}</ul>
+                <div class="pedido-card__total">
+                    <span>Total</span>
+                    <strong>B/ ${Number(total).toFixed(2)}</strong>
+                </div>
+                <div class="pedido-card__acciones">
+                    <button type="button" class="btn-estado btn-estado--proceso" onclick="cambiarEstado('${orderId}','proceso')">
+                        <i class="fas fa-fire"></i> En proceso
+                    </button>
+                    <button type="button" class="btn-estado btn-estado--completado" onclick="cambiarEstado('${orderId}','completado')">
+                        <i class="fas fa-check"></i> Completar
+                    </button>
+                    <button type="button" class="btn-estado btn-estado--cancelado" onclick="cambiarEstado('${orderId}','cancelado')">
+                        <i class="fas fa-times"></i> Cancelar
+                    </button>
+                </div>
+            </article>`;
+    });
+
+    document.getElementById('totalPedidos').textContent = pedidos.length;
+    document.getElementById('pendientes').textContent = pendientes;
+    document.getElementById('hoy').textContent = pedidos.filter(
+        (p) => p.fecha && new Date(p.fecha).toDateString() === hoy
+    ).length;
+}
+
+async function cambiarEstado(id, nuevo) {
+    try {
+        const response = await AuthService.fetchWithAuth(`${API}/orders/${id}/status`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ estado: nuevo })
+        });
+        await AppConfig.parseJsonResponse(response);
+        if (!response.ok) throw new Error('No se pudo actualizar');
+        await cargarPedidos();
+    } catch (err) {
+        alert(err.message);
+    }
+}
+
+document.addEventListener('DOMContentLoaded', async () => {
+    const user = await AuthService.requireAuth();
+    if (user) cargarPedidos();
+});
+</script>
+
+</body>
+</html>

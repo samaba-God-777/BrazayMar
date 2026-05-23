@@ -1,0 +1,11 @@
+{
+  "users": [
+    {
+      "id": "admin",
+      "username": "admin",
+      "passwordHash": "fadbf6be4b470294c09731a929de80d7:e64183cfb55e47c0b537062fa82fd148067f2b70973056091b1a44925ca643dd8c120a7c85fcfc25d19757f7cbacbfc7c6f23b341b9107d2e6dbc521dd65a9df",
+      "role": "admin",
+      "name": "Administrador"
+    }
+  ]
+}

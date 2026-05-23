@@ -1,18 +1,91 @@
-[
-  {
-    "id": "3c31f5db-e89a-405b-9c84-c5a0ee6cbc87",
-    "name": "hamburguesa",
-    "description": "la patrona ",
-    "price": 10,
-    "category": "Hamburguesas",
-    "image": "1767731995541.jpg"
-  },
-  {
-    "id": "7ea80d2e-6706-4d22-b170-52be0d3413d1",
-    "name": "carne asada",
-    "description": "carne",
-    "price": 4,
-    "category": "Especiales",
-    "image": "1767732035191.jpg"
-  }
-]
+{
+  "hamburguesas": [
+    {
+      "id": "ea34ac77-b179-4516-b6a3-9ad100271d97",
+      "nombre": "Hamburguesa",
+      "descripcion": "rica y grande",
+      "precio": "10.00",
+      "categoria": "hamburguesas",
+      "imagen": "/uploads/7ac96c55-3284-45e6-9525-39b31783a4cd.jpg",
+      "destacado": false,
+      "descuento": 0,
+      "rating": "4.5",
+      "fechaCreacion": "2026-01-07T03:36:00.553Z"
+    },
+    {
+      "id": "be6050b3-f5e5-4496-af28-eb5dc5f9be1f",
+      "nombre": "Hamburguesa",
+      "descripcion": "rica",
+      "precio": "10.00",
+      "categoria": "hamburguesas",
+      "imagen": "/uploads/0d4471fa-df8d-423f-9765-7ebb4e07ac12.jpg",
+      "destacado": false,
+      "descuento": 0,
+      "rating": "4.5",
+      "fechaCreacion": "2026-01-07T03:46:18.628Z"
+    },
+    {
+      "id": "840cef31-c1ba-4b55-8af3-fdafa303f36c",
+      "nombre": "Hamburguesa",
+      "descripcion": "hamburguesa de carne",
+      "precio": "7.00",
+      "categoria": "hamburguesas",
+      "imagen": "/uploads/e7979652-4076-413b-b333-f44fb674d4a0.jpg",
+      "destacado": false,
+      "descuento": 0,
+      "rating": "4.5",
+      "fechaCreacion": "2026-01-07T03:48:34.236Z"
+    },
+    {
+      "id": "0a218dc7-a8f2-4824-8fae-bba41d01f236",
+      "nombre": "Hamburguesa",
+      "descripcion": "comida rica ",
+      "precio": "10.00",
+      "categoria": "hamburguesas",
+      "imagen": "/uploads/46e4a681-8b4e-45bd-be5b-5e909992549b.jpg",
+      "destacado": false,
+      "descuento": 0,
+      "rating": "4.5",
+      "fechaCreacion": "2026-01-08T02:51:50.955Z"
+    },
+    {
+      "id": "93bb2a5c-0878-4fc6-9d4e-cd0d4cce8e33",
+      "nombre": "Cachetona",
+      "descripcion": "Hamburguesa con doble queso con doble carne.",
+      "precio": "9.91",
+      "categoria": "hamburguesas",
+      "imagen": "/uploads/f00feba6-66f1-47d9-a054-504504a0e67f.jpg",
+      "destacado": false,
+      "descuento": 0,
+      "rating": "4.5",
+      "fechaCreacion": "2026-05-23T11:34:53.868Z"
+    }
+  ],
+  "especiales": [
+    {
+      "id": "c6575116-a46c-47bf-af0c-d990481565e9",
+      "nombre": "carne asada",
+      "descripcion": "carne",
+      "precio": "10.00",
+      "categoria": "especiales",
+      "imagen": "/uploads/04a158cf-7630-40bd-8c24-b19714ae84c0.jpg",
+      "destacado": false,
+      "descuento": 0,
+      "rating": "4.5",
+      "fechaCreacion": "2026-01-07T03:25:36.528Z"
+    },
+    {
+      "id": "99312b93-34b1-414b-b7f3-1e43987af532",
+      "nombre": "salchipapa",
+      "descripcion": "comida rica con carne, salchicha y papa",
+      "precio": "10.00",
+      "categoria": "especiales",
+      "imagen": "/uploads/1f1da017-e745-4a1a-8ce0-f21be43d0673.jpg",
+      "destacado": false,
+      "descuento": 0,
+      "rating": "4.5",
+      "fechaCreacion": "2026-01-07T03:44:20.332Z"
+    }
+  ],
+  "cerdo": []
+}

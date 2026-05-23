@@ -1,41 +1,259 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Brazas$Mar - Pedidos</title>
-<link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Brazas$Mar - Pedidos</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="menu-showcase.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
 </head>
 <body>
-<header>
-    <h1>Brazas$Mar</h1>
-    <p>¡Pide tu comida favorita!</p>
-</header>
+    <header>
+        <section class="jumbotron">
+            <div class="jumbotron-content">
+                <img src="images/logo.jpg" alt="Logo Brazas$Mar" class="jumbotron-logo">
+                <div class="jumbotron-text">
+                    <h1>Brazas$Mar</h1>
+                    <p>¡Pide tu comida favorita y disfruta al instante!</p>
+                </div>
+            </div>
 
-<main>
-    <div class="menu-section">
-        <h2>Hamburguesas</h2>
-        <div class="menu-category" id="hamburguesas"></div>
-    </div>
+            <div class="cart-floating" onclick="toggleCart()" role="button" aria-label="Abrir carrito">
+                <i class="fas fa-shopping-cart"></i>
+                <span class="cart-count">0</span>
+            </div>
+        </section>
+    </header>
 
-    <div class="menu-section">
-        <h2>Especiales</h2>
-        <div class="menu-category" id="especiales"></div>
-    </div>
+    <nav class="menu-navbar" id="menuNavbar" aria-label="Navegación del menú">
+        <div class="menu-navbar__inner">
+            <span class="menu-navbar__brand">Menú</span>
+            <a href="#menu-hamburguesas" class="menu-navbar__link active" data-menu="hamburguesas">
+                <i class="fas fa-burger"></i> Hamburguesas
+            </a>
+            <a href="#menu-especiales" class="menu-navbar__link" data-menu="especiales">
+                <i class="fas fa-star"></i> Especiales
+            </a>
+            <a href="#menu-cerdo" class="menu-navbar__link" data-menu="cerdo">
+                <i class="fas fa-drumstick-bite"></i> Combo Cerdo
+            </a>
+        </div>
+    </nav>
 
-    <div class="menu-section">
-        <h2>Combo Cerdo</h2>
-        <div class="menu-category" id="combo-cerdo"></div>
-    </div>
+    <main class="menu-page">
+        <!-- Hamburguesas -->
+        <section id="menu-hamburguesas" class="menu-section" data-category="hamburguesas">
+            <header class="menu-section__intro">
+                <span class="menu-section__eyebrow">Nuestro menú</span>
+                <h2>Hamburguesas</h2>
+                <p class="menu-section__desc">
+                    Carne a la parrilla, pan artesanal e ingredientes frescos en cada bocado.
+                    Hamburguesas jugosas, generosas y hechas al momento para que disfrutes el sabor de la brasa.
+                </p>
+            </header>
 
-    <div id="cart-container">
-        <h2>Tu pedido</h2>
-        <div id="cart"></div>
-        <div id="total"></div>
-        <button id="placeOrder">Enviar pedido por correo</button>
-    </div>
-</main>
+            <div class="showcase" data-showcase="hamburguesas">
+                <div class="showcase__viewport">
+                    <div class="showcase__track" id="hamburguesas-slideshow"></div>
+                </div>
+                <div class="showcase__controls">
+                    <button type="button" class="showcase__arrow showcase__prev" aria-label="Anterior">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                    <div class="showcase__dots"></div>
+                    <span class="showcase__counter">
+                        <span class="current-slide">1</span> / <span class="total-slides">0</span>
+                    </span>
+                    <button type="button" class="showcase__arrow showcase__next" aria-label="Siguiente">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+            </div>
+        </section>
 
-<script src="app.js"></script>
+        <!-- Especiales -->
+        <section id="menu-especiales" class="menu-section" data-category="especiales">
+            <header class="menu-section__intro">
+                <span class="menu-section__eyebrow">Recomendados</span>
+                <h2>Especiales</h2>
+                <p class="menu-section__desc">
+                    Platos únicos de la casa con recetas exclusivas y sabores intensos.
+                    Ideales cuando quieres algo diferente: porciones abundantes y presentación premium.
+                </p>
+            </header>
+
+            <div class="showcase" data-showcase="especiales">
+                <div class="showcase__viewport">
+                    <div class="showcase__track" id="especiales-slideshow"></div>
+                </div>
+                <div class="showcase__controls">
+                    <button type="button" class="showcase__arrow showcase__prev" aria-label="Anterior">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                    <div class="showcase__dots"></div>
+                    <span class="showcase__counter">
+                        <span class="current-slide">1</span> / <span class="total-slides">0</span>
+                    </span>
+                    <button type="button" class="showcase__arrow showcase__next" aria-label="Siguiente">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Combo Cerdo -->
+        <section id="menu-cerdo" class="menu-section" data-category="cerdo">
+            <header class="menu-section__intro">
+                <span class="menu-section__eyebrow">A la brasa</span>
+                <h2>Combo Cerdo</h2>
+                <p class="menu-section__desc">
+                    Costillas y cortes de cerdo marinados, cocinados a fuego lento y terminados en la parrilla.
+                    Combos completos con guarniciones para compartir en familia o con amigos.
+                </p>
+            </header>
+
+            <div class="showcase" data-showcase="cerdo">
+                <div class="showcase__viewport">
+                    <div class="showcase__track" id="cerdo-slideshow"></div>
+                </div>
+                <div class="showcase__controls">
+                    <button type="button" class="showcase__arrow showcase__prev" aria-label="Anterior">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                    <div class="showcase__dots"></div>
+                    <span class="showcase__counter">
+                        <span class="current-slide">1</span> / <span class="total-slides">0</span>
+                    </span>
+                    <button type="button" class="showcase__arrow showcase__next" aria-label="Siguiente">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Modal del Carrito -->
+        <div class="cart-modal" id="cartModal">
+            <div class="cart-content">
+                <div class="cart-header">
+                    <h2><i class="fas fa-shopping-cart"></i> Tu Carrito</h2>
+                    <button class="close-cart" onclick="toggleCart()">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+
+                <div class="cart-items-scroll">
+                    <div class="cart-items" id="cartItems" aria-live="polite"></div>
+                    <div class="empty-cart" id="emptyCart">
+                        <i class="fas fa-shopping-basket"></i>
+                        <p>Tu carrito está vacío</p>
+                        <small>Agrega productos desde el menú</small>
+                    </div>
+                </div>
+
+                <div class="cart-summary">
+                    <div class="cart-total">
+                        <span>Subtotal:</span>
+                        <span id="cartSubtotal">B/ 0.00</span>
+                    </div>
+                    <div class="cart-total">
+                        <span>Envío:</span>
+                        <span id="cartShipping">B/ 0.00</span>
+                    </div>
+                    <div class="cart-total grand-total">
+                        <span>Total:</span>
+                        <span id="cartTotal">B/ 0.00</span>
+                    </div>
+                </div>
+
+                <div class="cart-actions">
+                    <button class="btn-clear" onclick="clearCart()">
+                        <i class="fas fa-trash"></i> Vaciar Carrito
+                    </button>
+                    <button class="btn-checkout" onclick="checkout()">
+                        <i class="fas fa-check"></i> Finalizar Pedido
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <section class="order-section order-section--pro" aria-labelledby="order-section-title">
+            <div class="order-section__glow" aria-hidden="true"></div>
+            <div class="order-section__card">
+                <div class="order-section__header">
+                    <span class="order-section__badge">
+                        <i class="fas fa-bolt"></i> Entrega rápida
+                    </span>
+                    <h2 id="order-section-title" class="order-section__title">Finaliza tu pedido</h2>
+                    <p class="order-section__subtitle">
+                        Revisa tu carrito y envía el pedido directo al equipo de Brazas$Mar.
+                    </p>
+                </div>
+
+                <ul class="order-section__steps">
+                    <li><span>1</span> Agrega productos al carrito</li>
+                    <li><span>2</span> Confirma tus datos de entrega</li>
+                    <li><span>3</span> Envía al administrador</li>
+                </ul>
+
+                <div class="order-options order-options--pro">
+                    <button type="button" class="send-order-btn send-order-btn--primary" onclick="checkout()">
+                        <span class="send-order-btn__icon">
+                            <i class="fas fa-paper-plane"></i>
+                        </span>
+                        <span class="send-order-btn__text">
+                            <strong>Enviar Pedido al Administrador</strong>
+                            <small>Confirmación inmediata</small>
+                        </span>
+                        <i class="fas fa-arrow-right send-order-btn__arrow"></i>
+                    </button>
+
+                    <a id="emailOrderBtn" class="send-email-btn send-email-btn--secondary">
+                        <i class="fas fa-envelope"></i>
+                        <span>Enviar por correo</span>
+                    </a>
+                </div>
+
+                <div class="order-info order-info--pro">
+                    <div class="order-info__item">
+                        <i class="fas fa-shield-alt"></i>
+                        <span>Pedido seguro con ID de seguimiento</span>
+                    </div>
+                    <div class="order-info__item">
+                        <i class="fas fa-list-check"></i>
+                        <span>Incluye cantidades y totales detallados</span>
+                    </div>
+                    <div class="order-info__item">
+                        <i class="fas fa-headset"></i>
+                        <span>Te contactamos para confirmar la entrega</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="site-footer">
+        <div class="footer-content">
+            <p>&copy; <span id="current-year">2026</span> Brazas$Mar | Todos los derechos reservados</p>
+            <a href="/login" class="admin-footer-link" title="Panel de administración">
+                <i class="fas fa-user-shield"></i> Admin
+            </a>
+            <div class="social-buttons">
+                <a href="https://www.facebook.com/tuCuenta" target="_blank" class="social-btn facebook">
+                    <i class="fab fa-facebook-f"></i> Facebook
+                </a>
+                <a href="https://www.instagram.com/tuCuenta" target="_blank" class="social-btn instagram">
+                    <i class="fab fa-instagram"></i> Instagram
+                </a>
+                <a href="https://wa.me/50761105082" target="_blank" class="social-btn whatsapp">
+                    <i class="fab fa-whatsapp"></i> WhatsApp
+                </a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="config.js"></script>
+    <script src="app.js"></script>
 </body>
 </html>
