@@ -21,6 +21,7 @@ const contactService = require('./services/contactService');
 const localSaleService = require('./services/localSaleService');
 
 const app = express();
+app.set('trust proxy', 1);
 
 const corsOrigins = (process.env.CORS_ORIGIN || '*')
     .split(',')
