@@ -1,0 +1,22 @@
+services:
+  - type: web
+    name: brazasmar
+    runtime: node
+    region: oregon
+    plan: free
+    buildCommand: cd backend && npm install
+    startCommand: cd backend && npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: MONGODB_URI
+        sync: false
+      - key: AUTH_SECRET
+        generateValue: true
+      - key: CORS_ORIGIN
+        value: https://brazasmar.onrender.com
+      - key: ADMIN_EMAIL
+        value: admin@brazasmar.com
+      - key: ADMIN_PASSWORD
+        generateValue: true
+    healthCheckPath: /api/menu
