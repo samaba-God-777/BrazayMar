@@ -767,6 +767,14 @@ app.post('/api/users/heartbeat', authService.requireAuth, async (req, res) => {
 
 // ============== PÁGINAS ==============
 
+app.get('/robots.txt', (_req, res) => {
+    res.type('text/plain').sendFile(path.join(__dirname, '../frontend/robots.txt'));
+});
+
+app.get('/sitemap.xml', (_req, res) => {
+    res.type('application/xml').sendFile(path.join(__dirname, '../frontend/sitemap.xml'));
+});
+
 app.get('/', (_req, res) => {
     res.sendFile(path.join(__dirname, '../frontend/index.html'));
 });
