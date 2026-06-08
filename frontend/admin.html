@@ -159,6 +159,10 @@
         
         <!-- Main Content -->
         <main class="admin-main">
+            <!-- Mobile Sidebar Toggle -->
+            <button class="admin-sidebar-toggle" id="sidebarToggle" aria-label="Menú">
+                <i class="fas fa-bars"></i>
+            </button>
             <!-- Header -->
             <header class="admin-header">
                 <div class="header-left">
@@ -967,9 +971,42 @@
         <div id="toastContainer" class="toast-container"></div>
     </div>
     
+    <!-- Mobile Sidebar Overlay -->
+    <div class="admin-sidebar-overlay" id="sidebarOverlay"></div>
+
     <script src="config.js"></script>
     <script src="auth.js"></script>
     <script src="admin.js"></script>
     <script src="admin-orders.js"></script>
+    <script>
+    (function() {
+        const toggle = document.getElementById('sidebarToggle');
+        const sidebar = document.querySelector('.admin-sidebar');
+        const overlay = document.getElementById('sidebarOverlay');
+        if (!toggle || !sidebar) return;
+
+        function openSidebar() {
+            sidebar.classList.add('is-open');
+            overlay.classList.add('is-visible');
+            document.body.style.overflow = 'hidden';
+        }
+        function closeSidebar() {
+            sidebar.classList.remove('is-open');
+            overlay.classList.remove('is-visible');
+            document.body.style.overflow = '';
+        }
+
+        toggle.addEventListener('click', () => {
+            sidebar.classList.contains('is-open') ? closeSidebar() : openSidebar();
+        });
+        overlay.addEventListener('click', closeSidebar);
+
+        sidebar.querySelectorAll('.nav-item').forEach(btn => {
+            btn.addEventListener('click', () => {
+                if (window.innerWidth <= 768) closeSidebar();
+            });
+        });
+    })();
+    </script>
 </body>
 </html>

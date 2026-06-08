@@ -2469,3 +2469,274 @@ body {
 .vr-action-btn--edit:hover { background: #fffbeb; border-color: #f59e0b; }
 .vr-action-btn--delete { color: #dc2626; }
 .vr-action-btn--delete:hover { background: #fef2f2; border-color: #dc2626; }
+
+/* =============================================
+   RESPONSIVE COMPLETO PARA ADMIN DASHBOARD
+   ============================================= */
+
+/* --- Mobile Sidebar Toggle Button (hidden on desktop) --- */
+.admin-sidebar-toggle {
+    display: none;
+    position: fixed;
+    top: 14px;
+    left: 14px;
+    z-index: 200;
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
+    background: #fff;
+    color: #1e293b;
+    font-size: 1.2rem;
+    cursor: pointer;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+/* --- Mobile Sidebar Overlay --- */
+.admin-sidebar-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.4);
+    z-index: 99;
+    backdrop-filter: blur(2px);
+    -webkit-backdrop-filter: blur(2px);
+}
+.admin-sidebar-overlay.is-visible {
+    display: block;
+}
+
+/* ========== TABLET (max-width: 1024px) ========== */
+@media (max-width: 1024px) {
+    .admin-sidebar { width: 260px; }
+    .admin-main { margin-left: 260px; }
+    .products-grid { grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); }
+    .header-stats { gap: 12px; }
+    .stat-card { min-width: 120px; }
+}
+
+/* ========== MOBILE (max-width: 768px) ========== */
+@media (max-width: 768px) {
+    .admin-sidebar-toggle { display: flex; }
+
+    /* Sidebar: slide off-screen */
+    .admin-sidebar {
+        position: fixed;
+        left: -280px;
+        top: 0;
+        width: 280px;
+        height: 100vh;
+        z-index: 100;
+        transition: left 0.3s ease;
+    }
+    .admin-sidebar.is-open {
+        left: 0;
+    }
+
+    /* Main: no left margin */
+    .admin-main {
+        margin-left: 0;
+    }
+
+    /* Header */
+    .admin-header {
+        padding: 20px 16px;
+        padding-left: 64px;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
+    .header-left h1 { font-size: 1.4em; }
+    .header-left p { font-size: 0.85rem; }
+    .header-right {
+        width: 100%;
+        justify-content: flex-start;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    /* Header Stats */
+    .header-stats {
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+    .stat-card {
+        min-width: 0;
+        flex: 1 1 calc(50% - 10px);
+        padding: 14px;
+    }
+    .stat-value { font-size: 1.4em; }
+
+    /* Admin Content */
+    .admin-content { padding: 16px; }
+
+    /* Card Headers */
+    .card-header {
+        padding: 20px 16px;
+    }
+    .card-header h2 { font-size: 1.3em; }
+    .header-content {
+        flex-direction: column;
+        gap: 12px;
+    }
+    .header-actions {
+        width: 100%;
+        flex-wrap: wrap;
+    }
+    .search-box {
+        width: 100%;
+    }
+
+    /* Table Container */
+    .table-container { padding: 16px; }
+    .table-filters {
+        flex-wrap: wrap;
+    }
+    .filter-select {
+        min-width: 0;
+        flex: 1 1 140px;
+    }
+
+    /* Products Grid */
+    .products-grid {
+        grid-template-columns: 1fr;
+    }
+
+    /* Forms */
+    .modern-form { padding: 20px 16px; }
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+    .form-actions {
+        flex-direction: column;
+        margin-top: 24px;
+        padding-top: 20px;
+    }
+    .form-actions .btn-primary,
+    .form-actions .btn-secondary {
+        width: 100%;
+        justify-content: center;
+    }
+
+    /* Categories Grid */
+    .categories-grid {
+        grid-template-columns: 1fr;
+    }
+
+    /* Notification Panel */
+    .admin-notifications-panel {
+        width: calc(100% - 32px);
+        right: 16px;
+        left: 16px;
+    }
+
+    /* Empty State */
+    .empty-state { padding: 40px 16px; }
+
+    /* ===== VENTAS LOCALES ===== */
+    .ventas-locales-main {
+        grid-template-columns: 1fr !important;
+    }
+    .vl-cliente-bar {
+        flex-wrap: wrap;
+    }
+    .vl-cliente-bar .form-group {
+        flex: 1 1 100%;
+        min-width: 0;
+    }
+    .vl-mesa-group {
+        width: 100% !important;
+        flex: 1 1 100% !important;
+    }
+    .vl-productos-grid {
+        grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+        gap: 8px;
+    }
+    .vl-prod-card {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    /* ===== VENTAS REALIZADAS ===== */
+    .vr-sale-card { padding: 16px; }
+    .vr-sale-header { flex-direction: column; gap: 8px; }
+    .vr-sale-cliente { flex-wrap: wrap; }
+    .vr-stats-bar { flex-wrap: wrap; }
+
+    /* ===== HISTORIAL ===== */
+    .vl-historial-item { padding: 14px; }
+
+    /* ===== TOAST ===== */
+    .toast { min-width: unset; max-width: calc(100vw - 32px); }
+}
+
+/* ========== MÓVIL PEQUEÑO (max-width: 480px) ========== */
+@media (max-width: 480px) {
+    .admin-header { padding: 16px 12px; padding-left: 60px; }
+    .header-left h1 { font-size: 1.2em; }
+    .stat-card { flex: 1 1 100%; }
+
+    .admin-content { padding: 12px; }
+    .card-header { padding: 16px 12px; }
+    .card-header h2 { font-size: 1.15em; }
+
+    .search-box { min-width: 0; }
+
+    .modern-form { padding: 16px 12px; }
+
+    /* Ventas locales */
+    .vl-productos-grid {
+        grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+    }
+    .vl-cart-items { max-height: 200px; }
+
+    /* Ventas realizadas */
+    .vr-sale-footer { flex-direction: column; gap: 8px; align-items: flex-start; }
+    .vr-sale-actions { width: 100%; justify-content: flex-end; }
+}
+
+/* ========== TOUCH TARGETS ========== */
+@media (max-width: 768px) {
+    .vl-qty-btn {
+        width: 40px !important;
+        height: 40px !important;
+        font-size: 1rem;
+    }
+    .vl-item-remove {
+        width: 36px !important;
+        height: 36px !important;
+    }
+    .vl-hist-invoice-btn {
+        width: 40px !important;
+        height: 40px !important;
+    }
+    .vl-conf-close {
+        width: 40px !important;
+        height: 40px !important;
+    }
+    .vr-action-btn {
+        width: 40px !important;
+        height: 40px !important;
+    }
+    .category-card__actions .btn-icon {
+        width: 40px !important;
+        height: 40px !important;
+    }
+    .notification-close {
+        padding: 8px !important;
+        min-width: 40px;
+        min-height: 40px;
+    }
+    .nav-item {
+        min-height: 44px;
+        padding: 12px 16px;
+    }
+    .filter-select {
+        min-height: 44px;
+    }
+    .btn-primary, .btn-secondary {
+        min-height: 48px;
+    }
+}
