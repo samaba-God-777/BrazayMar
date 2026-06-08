@@ -1546,3 +1546,19 @@ window.actualizarMenu = function() {
     // Notificar a otros componentes
     localStorage.setItem('menu_updated', Date.now().toString());
 };
+
+// ============== HEARTBEAT (online presence) ==============
+(function startHeartbeat() {
+    async function beat() {
+        try {
+            const token = localStorage.getItem('auth_token');
+            if (!token) return;
+            await fetch(`${API_BASE_URL}/users/heartbeat`, {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+        } catch {}
+    }
+    beat();
+    setInterval(beat, 60000);
+})();

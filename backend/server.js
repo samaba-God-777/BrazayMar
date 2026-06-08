@@ -657,6 +657,114 @@ app.delete('/api/local-sales/:id', authService.requireAuth, authService.requireR
     }
 });
 
+// ============== GESTIÓN DE USUARIOS (Admin) ==============
+
+app.get('/api/users', authService.requireAuth, authService.requireRole('admin'), async (_req, res) => {
+    try {
+        const User = require('./models/User');
+        const users = await User.find().sort({ createdAt: -1 }).lean();
+        res.json(users.map((u) => {
+            const now = Date.now();
+            const lastSeen = u.lastSeenAt?.getTime?.() || 0;
+            const isOnline = lastSeen > 0 && (now - lastSeen) < 2 * 60 * 1000;
+            return {
+                id: u._id.toString(),
+                username: u.username,
+                email: u.email,
+                name: u.name,
+                phone: u.phone || '',
+                address: u.address || '',
+                role: u.role,
+                active: u.active,
+                isOnline,
+                createdAt: u.createdAt?.toISOString?.() || null,
+                lastLoginAt: u.lastLoginAt?.toISOString?.() || null,
+                lastSeenAt: u.lastSeenAt?.toISOString?.() || null
+            };
+        }));
+    } catch (error) {
+        console.error('Error listing users:', error);
+        res.status(500).json({ error: 'Error al listar usuarios' });
+    }
+});
+
+app.put('/api/users/:id', authService.requireAuth, authService.requireRole('admin'), async (req, res) => {
+    try {
+        const User = require('./models/User');
+        const { id } = req.params;
+        const { name, email, phone, address, role, active } = req.body;
+
+        const user = await User.findById(id);
+        if (!user) return res.status(404).json({ error: 'Usuario no encontrado' });
+
+        if (name !== undefined) user.name = name.trim();
+        if (email !== undefined) {
+            const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!EMAIL_RE.test(email)) return res.status(400).json({ error: 'Email inválido' });
+            const dup = await User.findOne({ email: email.toLowerCase(), _id: { $ne: id } });
+            if (dup) return res.status(409).json({ error: 'Ese email ya está en uso' });
+            user.email = email.toLowerCase();
+        }
+        if (phone !== undefined) user.phone = phone.trim();
+        if (address !== undefined) user.address = address.trim();
+        if (role !== undefined && ['cliente', 'admin'].includes(role)) user.role = role;
+        if (active !== undefined) user.active = !!active;
+        user.updatedAt = new Date();
+        await user.save();
+
+        res.json({ message: '✅ Usuario actualizado', user: user.toPublic() });
+    } catch (error) {
+        console.error('Error updating user:', error);
+        res.status(500).json({ error: 'Error al actualizar usuario' });
+    }
+});
+
+app.delete('/api/users/:id', authService.requireAuth, authService.requireRole('admin'), async (req, res) => {
+    try {
+        const User = require('./models/User');
+        const user = await User.findById(req.params.id);
+        if (!user) return res.status(404).json({ error: 'Usuario no encontrado' });
+        if (user.role === 'admin') {
+            const adminCount = await User.countDocuments({ role: 'admin' });
+            if (adminCount <= 1) return res.status(400).json({ error: 'No se puede eliminar el último admin' });
+        }
+        await User.findByIdAndDelete(req.params.id);
+        res.json({ message: '✅ Usuario eliminado' });
+    } catch (error) {
+        console.error('Error deleting user:', error);
+        res.status(500).json({ error: 'Error al eliminar usuario' });
+    }
+});
+
+app.put('/api/users/:id/password', authService.requireAuth, authService.requireRole('admin'), async (req, res) => {
+    try {
+        const User = require('./models/User');
+        const { newPassword } = req.body;
+        if (!newPassword || newPassword.length < 6) {
+            return res.status(400).json({ error: 'La contraseña debe tener al menos 6 caracteres' });
+        }
+        const user = await User.findById(req.params.id);
+        if (!user) return res.status(404).json({ error: 'Usuario no encontrado' });
+        user.passwordHash = User.hashPassword(newPassword);
+        user.updatedAt = new Date();
+        await user.save();
+        res.json({ message: '✅ Contraseña actualizada' });
+    } catch (error) {
+        console.error('Error changing password:', error);
+        res.status(500).json({ error: 'Error al cambiar contraseña' });
+    }
+});
+
+app.post('/api/users/heartbeat', authService.requireAuth, async (req, res) => {
+    try {
+        const User = require('./models/User');
+        await User.findByIdAndUpdate(req.user.id, { lastSeenAt: new Date() });
+        res.json({ ok: true });
+    } catch {
+        res.json({ ok: true });
+    }
+});
+
 // ============== PÁGINAS ==============
 
 app.get('/', (_req, res) => {

@@ -133,6 +133,14 @@
                          <span class="nav-text">Analíticas</span>
                          <span class="nav-badge" id="analytics-badge">0</span>
                      </button>
+
+                     <button class="nav-item" onclick="showSection('users')">
+                         <div class="nav-icon">
+                             <i class="fas fa-users"></i>
+                         </div>
+                         <span class="nav-text">Usuarios</span>
+                         <span class="nav-badge" id="counter-users">0</span>
+                     </button>
                      
                      <button class="nav-item logout" onclick="logout()">
                          <div class="nav-icon">
@@ -954,6 +962,49 @@
                                   </button>
                               </div>
                           </form>
+                      </div>
+                  </section>
+
+                  <!-- ===== SECCIÓN: USUARIOS ===== -->
+                  <section id="section-users" class="admin-section" style="display:none;">
+                      <div class="card">
+                          <div class="card-header">
+                              <div class="header-content">
+                                  <h2><i class="fas fa-users"></i> Gestión de Usuarios</h2>
+                                  <div class="header-actions">
+                                      <div class="search-box">
+                                          <i class="fas fa-search search-icon"></i>
+                                          <input type="text" id="userSearchInput" class="search-input" placeholder="Buscar por nombre, email o usuario..." oninput="filtrarUsuarios()">
+                                      </div>
+                                      <button class="btn-secondary" onclick="cargarUsuarios()" title="Actualizar">
+                                          <i class="fas fa-sync-alt"></i>
+                                      </button>
+                                  </div>
+                              </div>
+                          </div>
+                          <div class="table-container">
+                              <div class="user-stats-bar" id="userStatsBar">
+                                  <div class="user-stat">
+                                      <i class="fas fa-users"></i>
+                                      <span>Total: <strong id="userTotalCount">0</strong></span>
+                                  </div>
+                                  <div class="user-stat user-stat--online">
+                                      <i class="fas fa-circle"></i>
+                                      <span>Online: <strong id="userOnlineCount">0</strong></span>
+                                  </div>
+                                  <div class="user-stat">
+                                      <i class="fas fa-user-shield"></i>
+                                      <span>Admins: <strong id="userAdminCount">0</strong></span>
+                                  </div>
+                                  <div class="user-stat">
+                                      <i class="fas fa-user"></i>
+                                      <span>Clientes: <strong id="userClienteCount">0</strong></span>
+                                  </div>
+                              </div>
+                              <div id="userList" class="user-list">
+                                  <p class="muted"><i class="fas fa-spinner fa-spin"></i> Cargando usuarios...</p>
+                              </div>
+                          </div>
                       </div>
                   </section>
              </div>

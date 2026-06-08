@@ -37,6 +37,10 @@ const SECTION_META = {
     analytics: {
         title: 'Analíticas de Ventas',
         description: 'Resumen de ventas y desempeño del negocio'
+    },
+    users: {
+        title: 'Gestión de Usuarios',
+        description: 'Administra los usuarios registrados'
     }
 };
 
@@ -135,6 +139,11 @@ function showSection(id) {
     if (id === 'ventas-realizadas') {
         if (typeof cargarVentasRealizadas === 'function') {
             cargarVentasRealizadas();
+        }
+    }
+    if (id === 'users') {
+        if (typeof cargarUsuarios === 'function') {
+            cargarUsuarios();
         }
     }
 }
@@ -1761,3 +1770,289 @@ window.verFacturaLocal = verFacturaLocal;
 window.reordenarVenta = reordenarVenta;
 window.editarVentaLocal = editarVentaLocal;
 window.eliminarVentaRealizada = eliminarVentaRealizada;
+
+// ============== GESTIÓN DE USUARIOS ==============
+
+let allUsers = [];
+
+async function cargarUsuarios() {
+    const container = document.getElementById('userList');
+    if (container) container.innerHTML = '<p class="muted"><i class="fas fa-spinner fa-spin"></i> Cargando usuarios...</p>';
+
+    try {
+        const response = await AuthService.fetchWithAuth(`${API_BASE_URL}/users`);
+        const users = await AppConfig.parseJsonResponse(response);
+        if (!response.ok) throw new Error('Error al cargar usuarios');
+
+        allUsers = users;
+        renderUsuarios(users);
+        actualizarStatsUsuarios(users);
+    } catch (err) {
+        console.error('Error loading users:', err);
+        if (container) container.innerHTML = '<p class="muted">Error al cargar usuarios</p>';
+    }
+}
+
+function renderUsuarios(users) {
+    const container = document.getElementById('userList');
+    if (!container) return;
+
+    if (!users || users.length === 0) {
+        container.innerHTML = '<div class="user-empty"><i class="fas fa-users"></i><p>No hay usuarios registrados</p></div>';
+        return;
+    }
+
+    container.innerHTML = users.map((u) => {
+        const initial = (u.name || u.username || '?').charAt(0).toUpperCase();
+        const avatarClass = u.role === 'admin' ? 'is-admin' : 'is-client';
+        const statusClass = u.isOnline ? 'online' : 'offline';
+        const cardClass = u.isOnline ? '' : 'is-offline';
+        const roleBadge = u.role === 'admin' ? '<span class="role-badge admin">Admin</span>' : '<span class="role-badge">Cliente</span>';
+        const created = u.createdAt ? new Date(u.createdAt).toLocaleDateString('es-PA') : '—';
+        const lastLogin = u.lastLoginAt ? new Date(u.lastLoginAt).toLocaleString('es-PA') : 'Nunca';
+
+        return `
+            <div class="user-card ${cardClass}">
+                <div class="user-card__avatar ${avatarClass}">
+                    ${initial}
+                    <span class="user-card__status ${statusClass}"></span>
+                </div>
+                <div class="user-card__info">
+                    <div class="user-card__name">${u.name || u.username} ${roleBadge}</div>
+                    <div class="user-card__meta">
+                        <span><i class="fas fa-user"></i> ${u.username}</span>
+                        <span><i class="fas fa-envelope"></i> ${u.email}</span>
+                        ${u.phone ? `<span><i class="fas fa-phone"></i> ${u.phone}</span>` : ''}
+                        <span><i class="fas fa-calendar"></i> ${created}</span>
+                        <span><i class="fas fa-sign-in-alt"></i> ${lastLogin}</span>
+                        ${u.isOnline ? '<span style="color:#16a34a;font-weight:600;"><i class="fas fa-circle"></i> En línea</span>' : ''}
+                    </div>
+                </div>
+                <div class="user-card__actions">
+                    <button class="user-action-btn user-action-btn--edit" onclick="editarUsuario('${u.id}')" title="Editar">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    <button class="user-action-btn user-action-btn--password" onclick="cambiarPasswordUsuario('${u.id}', '${u.name || u.username}')" title="Cambiar contraseña">
+                        <i class="fas fa-key"></i>
+                    </button>
+                    <button class="user-action-btn user-action-btn--toggle" onclick="toggleActiveUsuario('${u.id}', ${u.active})" title="${u.active ? 'Desactivar' : 'Activar'}">
+                        <i class="fas fa-${u.active ? 'ban' : 'check-circle'}"></i>
+                    </button>
+                    <button class="user-action-btn user-action-btn--delete" onclick="eliminarUsuario('${u.id}', '${u.name || u.username}')" title="Eliminar">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+function actualizarStatsUsuarios(users) {
+    const total = users.length;
+    const online = users.filter((u) => u.isOnline).length;
+    const admins = users.filter((u) => u.role === 'admin').length;
+    const clientes = users.filter((u) => u.role === 'cliente').length;
+
+    const setText = (id, val) => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = val;
+    };
+    setText('userTotalCount', total);
+    setText('userOnlineCount', online);
+    setText('userAdminCount', admins);
+    setText('userClienteCount', clientes);
+
+    const badge = document.getElementById('counter-users');
+    if (badge) badge.textContent = total;
+}
+
+function filtrarUsuarios() {
+    const search = (document.getElementById('userSearchInput')?.value || '').toLowerCase().trim();
+    if (!search) {
+        renderUsuarios(allUsers);
+        return;
+    }
+    const filtered = allUsers.filter((u) =>
+        (u.name || '').toLowerCase().includes(search) ||
+        (u.username || '').toLowerCase().includes(search) ||
+        (u.email || '').toLowerCase().includes(search)
+    );
+    renderUsuarios(filtered);
+}
+
+function editarUsuario(id) {
+    const user = allUsers.find((u) => u.id === id);
+    if (!user) return;
+
+    const overlay = document.createElement('div');
+    overlay.className = 'user-modal-overlay';
+    overlay.innerHTML = `
+        <div class="user-modal">
+            <div class="user-modal__header">
+                <h3><i class="fas fa-user-edit"></i> Editar Usuario</h3>
+                <button class="user-modal__close" onclick="this.closest('.user-modal-overlay').remove()">&times;</button>
+            </div>
+            <div class="user-modal__body">
+                <div class="form-group">
+                    <label>Nombre</label>
+                    <input type="text" id="editUserName" value="${user.name || ''}">
+                </div>
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="editUserEmail" value="${user.email || ''}">
+                </div>
+                <div class="form-group">
+                    <label>Teléfono</label>
+                    <input type="text" id="editUserPhone" value="${user.phone || ''}">
+                </div>
+                <div class="form-group">
+                    <label>Dirección</label>
+                    <input type="text" id="editUserAddress" value="${user.address || ''}">
+                </div>
+                <div class="form-group">
+                    <label>Rol</label>
+                    <select id="editUserRole">
+                        <option value="cliente" ${user.role === 'cliente' ? 'selected' : ''}>Cliente</option>
+                        <option value="admin" ${user.role === 'admin' ? 'selected' : ''}>Administrador</option>
+                    </select>
+                </div>
+            </div>
+            <div class="user-modal__footer">
+                <button onclick="this.closest('.user-modal-overlay').remove()">Cancelar</button>
+                <button class="btn-save" onclick="guardarUsuario('${id}')">
+                    <i class="fas fa-save"></i> Guardar
+                </button>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(overlay);
+    overlay.addEventListener('click', (e) => {
+        if (e.target === overlay) overlay.remove();
+    });
+}
+
+async function guardarUsuario(id) {
+    const data = {
+        name: document.getElementById('editUserName')?.value?.trim(),
+        email: document.getElementById('editUserEmail')?.value?.trim(),
+        phone: document.getElementById('editUserPhone')?.value?.trim(),
+        address: document.getElementById('editUserAddress')?.value?.trim(),
+        role: document.getElementById('editUserRole')?.value
+    };
+
+    try {
+        const response = await AuthService.fetchWithAuth(`${API_BASE_URL}/users/${id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        });
+        const result = await AppConfig.parseJsonResponse(response);
+        if (!response.ok) throw new Error(result.error || 'Error al guardar');
+
+        showToast(result.message || 'Usuario actualizado', 'success');
+        document.querySelector('.user-modal-overlay')?.remove();
+        await cargarUsuarios();
+    } catch (err) {
+        showToast(err.message, 'error');
+    }
+}
+
+async function cambiarPasswordUsuario(id, name) {
+    const overlay = document.createElement('div');
+    overlay.className = 'user-modal-overlay';
+    overlay.innerHTML = `
+        <div class="user-modal">
+            <div class="user-modal__header">
+                <h3><i class="fas fa-key"></i> Cambiar contraseña — ${name}</h3>
+                <button class="user-modal__close" onclick="this.closest('.user-modal-overlay').remove()">&times;</button>
+            </div>
+            <div class="user-modal__body">
+                <div class="form-group">
+                    <label>Nueva contraseña</label>
+                    <input type="password" id="newPasswordInput" placeholder="Mínimo 6 caracteres">
+                </div>
+            </div>
+            <div class="user-modal__footer">
+                <button onclick="this.closest('.user-modal-overlay').remove()">Cancelar</button>
+                <button class="btn-save" onclick="guardarPasswordUsuario('${id}')">
+                    <i class="fas fa-save"></i> Guardar
+                </button>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(overlay);
+    overlay.addEventListener('click', (e) => {
+        if (e.target === overlay) overlay.remove();
+    });
+}
+
+async function guardarPasswordUsuario(id) {
+    const pw = document.getElementById('newPasswordInput')?.value;
+    if (!pw || pw.length < 6) {
+        showToast('La contraseña debe tener al menos 6 caracteres', 'error');
+        return;
+    }
+
+    try {
+        const response = await AuthService.fetchWithAuth(`${API_BASE_URL}/users/${id}/password`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ newPassword: pw })
+        });
+        const result = await AppConfig.parseJsonResponse(response);
+        if (!response.ok) throw new Error(result.error || 'Error al cambiar contraseña');
+
+        showToast(result.message || 'Contraseña actualizada', 'success');
+        document.querySelector('.user-modal-overlay')?.remove();
+    } catch (err) {
+        showToast(err.message, 'error');
+    }
+}
+
+async function toggleActiveUsuario(id, currentActive) {
+    const action = currentActive ? 'desactivar' : 'activar';
+    if (!confirm(`¿${action.charAt(0).toUpperCase() + action.slice(1)} este usuario?`)) return;
+
+    try {
+        const response = await AuthService.fetchWithAuth(`${API_BASE_URL}/users/${id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ active: !currentActive })
+        });
+        const result = await AppConfig.parseJsonResponse(response);
+        if (!response.ok) throw new Error(result.error || 'Error al actualizar');
+
+        showToast(result.message || 'Usuario actualizado', 'success');
+        await cargarUsuarios();
+    } catch (err) {
+        showToast(err.message, 'error');
+    }
+}
+
+async function eliminarUsuario(id, name) {
+    if (!confirm(`¿Eliminar a "${name}"? Esta acción no se puede deshacer.`)) return;
+
+    try {
+        const response = await AuthService.fetchWithAuth(`${API_BASE_URL}/users/${id}`, {
+            method: 'DELETE'
+        });
+        const result = await AppConfig.parseJsonResponse(response);
+        if (!response.ok) throw new Error(result.error || 'Error al eliminar');
+
+        showToast(result.message || 'Usuario eliminado', 'success');
+        await cargarUsuarios();
+    } catch (err) {
+        showToast(err.message, 'error');
+    }
+}
+
+// ============== HEARTBEAT (online status) ==============
+(function startHeartbeat() {
+    async function beat() {
+        try {
+            await AuthService.fetchWithAuth(`${API_BASE_URL}/users/heartbeat`, { method: 'POST' });
+        } catch {}
+    }
+    beat();
+    setInterval(beat, 60000);
+})();

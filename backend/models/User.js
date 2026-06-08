@@ -16,6 +16,7 @@ const userSchema = new mongoose.Schema(
         role: { type: String, enum: ['cliente', 'admin'], default: 'cliente', index: true },
         active: { type: Boolean, default: true },
         lastLoginAt: { type: Date },
+        lastSeenAt: { type: Date },
         createdAt: { type: Date, default: Date.now },
         updatedAt: { type: Date }
     },
@@ -23,6 +24,9 @@ const userSchema = new mongoose.Schema(
 );
 
 userSchema.methods.toPublic = function toPublic() {
+    const now = Date.now();
+    const lastSeen = this.lastSeenAt?.getTime?.() || 0;
+    const isOnline = lastSeen > 0 && (now - lastSeen) < 2 * 60 * 1000;
     return {
         id: this._id.toString(),
         username: this.username,
@@ -32,8 +36,10 @@ userSchema.methods.toPublic = function toPublic() {
         address: this.address,
         role: this.role,
         active: this.active,
+        isOnline,
         createdAt: this.createdAt?.toISOString?.() || null,
-        lastLoginAt: this.lastLoginAt?.toISOString?.() || null
+        lastLoginAt: this.lastLoginAt?.toISOString?.() || null,
+        lastSeenAt: this.lastSeenAt?.toISOString?.() || null
     };
 };
 
