@@ -53,12 +53,17 @@ function renderAdminOrderCard(p) {
     const fecha = p.fecha ? new Date(p.fecha).toLocaleString('es-PA') : '—';
     const estado = p.estado || 'pendiente';
     const orderId = p.orderId || p.id;
+    const tipo = p.tipo || 'delivery';
+    const tipoBadge = tipo === 'local'
+        ? '<span class="pedido-tipo-badge pedido-tipo-badge--local"><i class="fas fa-store"></i> LOCAL</span>'
+        : '<span class="pedido-tipo-badge pedido-tipo-badge--delivery"><i class="fas fa-motorcycle"></i> DELIVERY</span>';
 
     return `
         <article class="pedido-card">
             <header class="pedido-card__head">
                 <div>
                     <span class="pedido-card__id">${orderId}</span>
+                    ${tipoBadge}
                     <time class="pedido-card__fecha">${fecha}</time>
                 </div>
                 <span class="estado estado--${estado}">${estado}</span>
@@ -70,7 +75,7 @@ function renderAdminOrderCard(p) {
             </div>
             <ul class="pedido-card__items">${itemsHtml}</ul>
             <div class="pedido-card__total">
-                <span>Total</span>
+                <span>Total${tipo === 'local' ? ' (sin envío)' : ''}</span>
                 <strong>B/ ${Number(total).toFixed(2)}</strong>
             </div>
             <div class="pedido-card__acciones">
@@ -82,6 +87,9 @@ function renderAdminOrderCard(p) {
                 </button>
                 <button type="button" class="btn-estado btn-estado--cancelado" data-order="${orderId}" data-estado="cancelado">
                     <i class="fas fa-times"></i> Cancelar
+                </button>
+                <button type="button" class="btn-estado btn-estado--eliminado" data-order="${orderId}">
+                    <i class="fas fa-trash-alt"></i> Eliminar
                 </button>
             </div>
         </article>`;
@@ -109,9 +117,19 @@ function renderPedidosAdmin() {
     cont.innerHTML = adminOrders.map(renderAdminOrderCard).join('');
 
     cont.querySelectorAll('[data-order]').forEach((btn) => {
-        btn.addEventListener('click', () => {
-            cambiarEstadoPedido(btn.dataset.order, btn.dataset.estado);
-        });
+        // Handle delete button separately
+        if (btn.classList.contains('btn-estado--eliminado')) {
+            btn.addEventListener('click', () => {
+                if (confirm('¿Estás seguro de eliminar este pedido? Esta acción no se puede deshacer.')) {
+                    eliminarPedido(btn.dataset.order);
+                }
+            });
+        } else {
+            // Handle status change buttons
+            btn.addEventListener('click', () => {
+                cambiarEstadoPedido(btn.dataset.order, btn.dataset.estado);
+            });
+        }
     });
 }
 
@@ -159,6 +177,25 @@ async function cambiarEstadoPedido(orderId, estado) {
     }
 }
 
+async function eliminarPedido(orderId) {
+    try {
+        const response = await AuthService.fetchWithAuth(`${API_BASE_URL}/orders/${orderId}`, {
+            method: 'DELETE'
+        });
+        await AppConfig.parseJsonResponse(response);
+        if (!response.ok) throw new Error('No se pudo eliminar el pedido');
+
+        if (typeof showToast === 'function') {
+            showToast(`Pedido ${orderId} eliminado correctamente`, 'success');
+        }
+        await cargarPedidosAdmin(true);
+        await checkNewOrders(true);
+    } catch (err) {
+        if (typeof showToast === 'function') showToast(err.message, 'error');
+        else alert(err.message);
+    }
+}
+
 function addNotificationToPanel(order) {
     const list = document.getElementById('adminNotificationsList');
     if (!list) return;
@@ -169,7 +206,17 @@ function addNotificationToPanel(order) {
         <strong>Nuevo pedido ${order.orderId || order.id}</strong>
         <span>${order.cliente?.nombre || 'Cliente'} · B/ ${Number(order.totales?.total || 0).toFixed(2)}</span>
         <time>${new Date(order.fecha || Date.now()).toLocaleString('es-PA')}</time>
+        <button type="button" class="notification-close" aria-label="Eliminar notificación">
+            <i class="fas fa-times"></i>
+        </button>
     `;
+    
+    // Add click handler for the notification content (not the close button)
+    li.querySelector('.notification-close').addEventListener('click', (e) => {
+        e.stopPropagation(); // Prevent triggering the li click event
+        li.remove();
+    });
+    
     li.addEventListener('click', () => {
         if (typeof showSection === 'function') showSection('pedidos');
         toggleNotificationsPanel(false);

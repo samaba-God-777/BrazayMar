@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mi cuenta - Brazas$Mar</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
+    <link rel="stylesheet" href="auth.css">
+    <link rel="stylesheet" href="account.css">
+</head>
+<body class="auth-body account-body">
+    <div class="account-shell">
+        <aside class="account-sidebar">
+            <a href="/" class="auth-back">
+                <i class="fas fa-arrow-left"></i> Volver a la tienda
+            </a>
+            <div class="account-user">
+                <div class="account-avatar" id="accountAvatar">U</div>
+                <h2 id="accountName">Cargando...</h2>
+                <span class="account-role" id="accountRole">cliente</span>
+            </div>
+            <nav class="account-nav">
+                <button class="account-nav-link active" data-section="profile">
+                    <i class="fas fa-id-card"></i> Mi perfil
+                </button>
+                <button class="account-nav-link" data-section="orders">
+                    <i class="fas fa-receipt"></i> Mis pedidos
+                </button>
+                <button class="account-nav-link" data-section="security">
+                    <i class="fas fa-shield-alt"></i> Seguridad
+                </button>
+            </nav>
+            <button class="auth-submit account-logout" id="logoutBtn">
+                <i class="fas fa-sign-out-alt"></i> Cerrar sesión
+            </button>
+        </aside>
+
+        <main class="account-main">
+            <section class="account-section active" data-section="profile">
+                <header class="account-section-head">
+                    <h2><i class="fas fa-id-card"></i> Mi perfil</h2>
+                    <p>Actualiza tu información personal</p>
+                </header>
+                <form id="profileForm" class="auth-form">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Nombre</label>
+                            <div class="input-icon">
+                                <i class="fas fa-id-card"></i>
+                                <input type="text" id="profileName" name="name" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Usuario</label>
+                            <div class="input-icon">
+                                <i class="fas fa-user"></i>
+                                <input type="text" id="profileUsername" disabled>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Email</label>
+                        <div class="input-icon">
+                            <i class="fas fa-envelope"></i>
+                            <input type="email" id="profileEmail" name="email" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Teléfono</label>
+                            <div class="input-icon">
+                                <i class="fas fa-phone"></i>
+                                <input type="tel" id="profilePhone" name="phone">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Dirección</label>
+                            <div class="input-icon">
+                                <i class="fas fa-map-marker-alt"></i>
+                                <input type="text" id="profileAddress" name="address">
+                            </div>
+                        </div>
+                    </div>
+                    <div id="profileMessage" class="auth-message" hidden></div>
+                    <button type="submit" class="auth-submit" id="profileSaveBtn">
+                        <i class="fas fa-save"></i> Guardar cambios
+                    </button>
+                </form>
+            </section>
+
+            <section class="account-section" data-section="orders">
+                <header class="account-section-head">
+                    <h2><i class="fas fa-receipt"></i> Mis pedidos</h2>
+                    <p>Historial y seguimiento de tus pedidos</p>
+                </header>
+                <div id="ordersList" class="orders-list">
+                    <div class="empty-state">
+                        <i class="fas fa-spinner fa-spin"></i>
+                        <p>Cargando pedidos...</p>
+                    </div>
+                </div>
+            </section>
+
+            <section class="account-section" data-section="security">
+                <header class="account-section-head">
+                    <h2><i class="fas fa-shield-alt"></i> Seguridad</h2>
+                    <p>Cambia tu contraseña</p>
+                </header>
+                <form id="passwordForm" class="auth-form">
+                    <div class="form-group">
+                        <label>Contraseña actual</label>
+                        <div class="input-icon">
+                            <i class="fas fa-lock"></i>
+                            <input type="password" id="currentPassword" required autocomplete="current-password">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Nueva contraseña</label>
+                            <div class="input-icon">
+                                <i class="fas fa-lock"></i>
+                                <input type="password" id="newPassword" required minlength="6" autocomplete="new-password">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Confirmar</label>
+                            <div class="input-icon">
+                                <i class="fas fa-lock"></i>
+                                <input type="password" id="newPasswordConfirm" required minlength="6" autocomplete="new-password">
+                            </div>
+                        </div>
+                    </div>
+                    <div id="passwordMessage" class="auth-message" hidden></div>
+                    <button type="submit" class="auth-submit" id="passwordSaveBtn">
+                        <i class="fas fa-save"></i> Actualizar contraseña
+                    </button>
+                </form>
+            </section>
+        </main>
+    </div>
+
+    <script src="config.js"></script>
+    <script src="auth.js"></script>
+    <script src="account.js"></script>
+</body>
+</html>

@@ -2,14 +2,16 @@ const fs = require('fs');
 const path = require('path');
 const { v4: uuidv4 } = require('uuid');
 const Product = require('../models/Product');
-const { CATEGORIES } = require('../models/Product');
-
-function emptyMenu() {
-    return { hamburguesas: [], especiales: [], cerdo: [] };
-}
+const categoryService = require('./categoryService');
 
 async function getMenuGrouped() {
-    const menu = emptyMenu();
+    const categories = await categoryService.listCategories();
+    const menu = {
+        categories: categories.map((c) => ({ id: c.id, name: c.name, icon: c.icon, order: c.order })),
+        items: {}
+    };
+    for (const c of categories) menu.items[c.id] = [];
+
     const products = await Product.find().sort({ fechaCreacion: -1 }).lean();
 
     for (const doc of products) {
@@ -26,9 +28,9 @@ async function getMenuGrouped() {
             fechaCreacion: doc.fechaCreacion,
             fechaActualizacion: doc.fechaActualizacion
         };
-        if (menu[doc.categoria]) {
-            menu[doc.categoria].push(item);
-        }
+        const key = doc.categoria;
+        if (!menu.items[key]) menu.items[key] = [];
+        menu.items[key].push(item);
     }
 
     return menu;
@@ -90,7 +92,7 @@ async function seedFromJsonIfEmpty(menuPath) {
     const menu = JSON.parse(fs.readFileSync(menuPath, 'utf-8'));
     const docs = [];
 
-    for (const categoria of CATEGORIES) {
+    for (const categoria of Object.keys(menu)) {
         const list = menu[categoria] || [];
         for (const p of list) {
             docs.push({
@@ -98,7 +100,7 @@ async function seedFromJsonIfEmpty(menuPath) {
                 nombre: p.nombre,
                 descripcion: p.descripcion,
                 precio: String(p.precio),
-                categoria: p.categoria || categoria,
+                categoria: String(p.categoria || categoria).toLowerCase(),
                 imagen: p.imagen || '/images/placeholder.png',
                 destacado: !!p.destacado,
                 descuento: p.descuento || 0,
@@ -114,8 +116,10 @@ async function seedFromJsonIfEmpty(menuPath) {
     }
 }
 
-function isValidCategory(category) {
-    return CATEGORIES.includes(category);
+async function isValidCategory(category) {
+    if (!category) return false;
+    const cats = await categoryService.listCategories();
+    return cats.some((c) => c.id === String(category).toLowerCase());
 }
 
 module.exports = {
@@ -125,6 +129,5 @@ module.exports = {
     updateProduct,
     deleteProduct,
     seedFromJsonIfEmpty,
-    isValidCategory,
-    CATEGORIES
+    isValidCategory
 };

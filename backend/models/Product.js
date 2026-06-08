@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-const CATEGORIES = ['hamburguesas', 'especiales', 'cerdo'];
+const CATEGORIES = []; // Legacy: ahora las categorías son dinámicas (ver Category.js)
 
 const productSchema = new mongoose.Schema(
     {
@@ -8,7 +8,7 @@ const productSchema = new mongoose.Schema(
         nombre: { type: String, required: true, trim: true },
         descripcion: { type: String, required: true, trim: true },
         precio: { type: String, required: true },
-        categoria: { type: String, required: true, enum: CATEGORIES, index: true },
+        categoria: { type: String, required: true, index: true, lowercase: true, trim: true },
         imagen: { type: String, default: '/images/placeholder.png' },
         destacado: { type: Boolean, default: false },
         descuento: { type: Number, default: 0, min: 0, max: 50 },

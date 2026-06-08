@@ -31,7 +31,7 @@
             throw new Error(
                 response.ok
                     ? 'El servidor respondió vacío. ¿Está corriendo en el puerto 4000? (cd backend && npm start)'
-                    : `Error del servidor (${response.status}). Comprueba que el backend esté activo en http://localhost:4000`
+                    : `Error del servidor (${response.status}). Comprueba que el backend esté activo en http://localhost:${BACKEND_PORT}`
             );
         }
 
@@ -41,18 +41,36 @@
             const preview = text.slice(0, 80).replace(/\s+/g, ' ');
             throw new Error(
                 `Respuesta no válida del servidor (${response.status}). ` +
-                `Abre la app en http://localhost:4000 — no uses Live Server ni file://. ${preview}`
+                `Abre la app en http://localhost:${BACKEND_PORT} — no uses Live Server ni file://. ${preview}`
             );
         }
+    }
+
+    function toast(message, type = 'info') {
+        const map = { success: 'check-circle', error: 'exclamation-circle', warning: 'exclamation-triangle', info: 'info-circle' };
+        const icon = map[type] || 'info-circle';
+        const el = document.createElement('div');
+        el.className = `notification ${type}`;
+        el.innerHTML = `<i class="fas fa-${icon}"></i><span>${message}</span>`;
+        document.body.appendChild(el);
+        setTimeout(() => el.classList.add('show'), 10);
+        setTimeout(() => {
+            el.classList.remove('show');
+            setTimeout(() => el.remove(), 300);
+        }, 3500);
     }
 
     window.AppConfig = {
         API_BASE_URL: apiBase,
         SERVER_ORIGIN: backendOrigin,
         BACKEND_ORIGIN: backendOrigin,
+        LOGIN_URL: `${backendOrigin}/login`,
+        REGISTER_URL: `${backendOrigin}/registro`,
+        ACCOUNT_URL: `${backendOrigin}/mi-cuenta`,
         ADMIN_LOGIN_URL: `${backendOrigin}/login`,
         ADMIN_DASHBOARD_URL: `${backendOrigin}/admin`,
         STORE_URL: `${backendOrigin}/`,
-        parseJsonResponse
+        parseJsonResponse,
+        toast
     };
 })();

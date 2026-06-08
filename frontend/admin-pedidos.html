@@ -41,6 +41,9 @@
             <a href="/admin" class="btn-refresh btn-refresh--outline">
                 <i class="fas fa-arrow-left"></i> Productos
             </a>
+            <button class="btn-refresh btn-refresh--outline" onclick="AuthService.logout()">
+                <i class="fas fa-sign-out-alt"></i> Salir
+            </button>
         </div>
     </header>
 
@@ -164,7 +167,7 @@ async function cambiarEstado(id, nuevo) {
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
-    const user = await AuthService.requireAuth();
+    const user = await AuthService.requireRole('admin');
     if (user) cargarPedidos();
 });
 </script>

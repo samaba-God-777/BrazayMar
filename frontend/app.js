@@ -3,51 +3,169 @@ const API_BASE_URL = window.AppConfig?.API_BASE_URL || `${window.location.origin
 const SERVER_ORIGIN = window.AppConfig?.SERVER_ORIGIN || window.location.origin;
 
 // Variables globales
-let carrito = JSON.parse(localStorage.getItem('brazasmar_carrito')) || [];
+let currentUser = null;
+function cargarCarrito() {
+    try {
+        return JSON.parse(localStorage.getItem(AuthService.cartKey())) || [];
+    } catch {
+        return [];
+    }
+}
+let carrito = cargarCarrito();
 let currentSlide = {};
 let productosCantidad = {}; // Almacena cantidades temporales por producto
 
-// Categorías
-const categorias = {
-    hamburguesas: 'Hamburguesas',
-    especiales: 'Especiales',
-    cerdo: 'Combo Cerdo'
-};
+// Categorías (se cargan dinámicamente desde /api/categories)
+let categorias = {}; // { id: { name, icon, order } }
+let categoriasList = []; // [{ id, name, icon, order }]
 
 const slideshowIntervals = {};
 const showcaseState = {};
 
 // DEBUG: Verificar que las funciones están disponibles
 console.log('✅ App.js cargado');
-console.log('📦 Carrito inicial:', carrito);
 
 // Inicializar
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', async function() {
     console.log('🚀 Inicializando aplicación...');
-    
+
+    currentUser = await AuthService.verifySession();
+    if (!currentUser) {
+        window.location.href = AppConfig.LOGIN_URL;
+        return;
+    }
+
+    carrito = cargarCarrito();
+    renderUserChip();
+    renderAccountNav();
+
+    // Si es admin, mostrar banner y botón "Volver al panel"
+    if (currentUser.role === 'admin') {
+        renderAdminBanner();
+    }
+
     // Actualizar año
     const yearElement = document.getElementById('current-year');
     if (yearElement) {
         yearElement.textContent = new Date().getFullYear();
     }
-    
+
     // Cargar menú
     cargarMenu();
-    
+
     // Inicializar carrito
     inicializarCarrito();
-    
+
     // Configurar eventos
     configurarEventos();
-    
+
     // Configurar botón de email
     configurarBotonEmail();
 
     initMenuNavbar();
-    
+
     // Hacer funciones globales disponibles
     hacerFuncionesGlobales();
 });
+
+function renderAdminBanner() {
+    const banner = document.createElement('div');
+    banner.className = 'admin-mode-banner';
+    banner.innerHTML = `
+        <div class="admin-mode-banner__inner">
+            <i class="fas fa-user-shield"></i>
+            <span><strong>Modo administrador</strong> — Estás viendo la tienda como admin. Los pedidos que hagas también aparecerán en el panel.</span>
+            <a href="${AppConfig.ADMIN_DASHBOARD_URL}" class="admin-mode-banner__btn">
+                <i class="fas fa-arrow-left"></i> Volver al panel
+            </a>
+        </div>
+    `;
+    document.body.prepend(banner);
+}
+
+function renderUserChip() {
+    const host = document.getElementById('userChip');
+    if (!host) return;
+    if (!currentUser) {
+        host.innerHTML = '';
+        return;
+    }
+    const initial = (currentUser.name || currentUser.username || 'U').charAt(0).toUpperCase();
+    const isAdmin = currentUser.role === 'admin';
+    const displayName = currentUser.name || currentUser.username;
+    const roleLabel = isAdmin ? 'Administrador' : 'Cliente';
+
+    host.innerHTML = `
+        <div class="user-chip-wrap" id="userChipWrap">
+            <button type="button" class="user-chip ${isAdmin ? 'is-admin' : ''}" id="userChipBtn" aria-haspopup="menu" aria-expanded="false">
+                <span class="user-chip__avatar">${initial}</span>
+                <span class="user-chip__name">${displayName}</span>
+                <i class="fas fa-chevron-down user-chip__caret"></i>
+            </button>
+            <div class="user-menu" role="menu" id="userMenu">
+                <div class="user-menu__header">
+                    <div class="user-menu__name">${displayName}</div>
+                    <div class="user-menu__role ${isAdmin ? 'user-menu__role--admin' : ''}">${roleLabel}</div>
+                </div>
+                <a href="${AppConfig.ACCOUNT_URL}" class="user-menu__item" role="menuitem">
+                    <i class="fas fa-user"></i> Mi cuenta
+                </a>
+                <a href="${AppConfig.ACCOUNT_URL}#orders" class="user-menu__item" role="menuitem">
+                    <i class="fas fa-receipt"></i> Mis pedidos
+                </a>
+                ${isAdmin ? `
+                <div class="user-menu__divider"></div>
+                <a href="${AppConfig.ADMIN_DASHBOARD_URL}" class="user-menu__item user-menu__item--admin" role="menuitem">
+                    <i class="fas fa-tachometer-alt"></i> Panel admin
+                </a>
+                ` : ''}
+                <div class="user-menu__divider"></div>
+                <button type="button" class="user-menu__item user-menu__item--danger" id="userLogoutBtn" role="menuitem">
+                    <i class="fas fa-sign-out-alt"></i> Cerrar sesión
+                </button>
+            </div>
+        </div>
+    `;
+
+    const wrap = document.getElementById('userChipWrap');
+    const btn = document.getElementById('userChipBtn');
+    btn?.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const open = wrap.classList.toggle('is-open');
+        btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+    });
+    document.getElementById('userLogoutBtn')?.addEventListener('click', () => {
+        if (confirm('¿Cerrar sesión?')) AuthService.logout();
+    });
+    document.addEventListener('click', (e) => {
+        if (!wrap.contains(e.target)) {
+            wrap.classList.remove('is-open');
+            btn?.setAttribute('aria-expanded', 'false');
+        }
+    });
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && wrap.classList.contains('is-open')) {
+            wrap.classList.remove('is-open');
+            btn?.setAttribute('aria-expanded', 'false');
+            btn.focus();
+        }
+    });
+}
+
+function renderAccountNav() {
+    const link = document.getElementById('accountNavLink');
+    const label = document.getElementById('accountNavLabel');
+    if (!link || !label) return;
+    if (!currentUser) {
+        link.href = AppConfig.LOGIN_URL;
+        link.innerHTML = '<i class="fas fa-sign-in-alt"></i> <span id="accountNavLabel">Ingresar</span>';
+        link.style.display = '';
+        return;
+    }
+    // Si hay sesión, ocultamos el botón "Ingresar/Mi cuenta" del topbar
+    // porque ya mostramos el user-chip con dropdown.
+    link.style.display = 'none';
+}
 
 // Hacer funciones disponibles globalmente
 function hacerFuncionesGlobales() {
@@ -93,7 +211,7 @@ function calcularTotalItems() {
 
 // Guardar carrito en localStorage
 function guardarCarrito() {
-    localStorage.setItem('brazasmar_carrito', JSON.stringify(carrito));
+    localStorage.setItem(AuthService.cartKey(), JSON.stringify(carrito));
     console.log('💾 Carrito guardado:', carrito);
 }
 
@@ -102,19 +220,49 @@ async function agregarAlCarrito(productId, categoria, cantidad = 1) {
     console.log('➕ Agregando al carrito:', { productId, categoria, cantidad });
     
     try {
-        // Buscar producto en el DOM primero
+        let nombre, precio, imagen;
+
+        // Buscar producto en el DOM del showcase
         const card = document.querySelector(`.menu-card[data-id="${productId}"]`);
-        if (!card) {
-            console.error('❌ Producto no encontrado en DOM');
+        if (card) {
+            nombre = card.querySelector('.product-showcase__title, .card-title')?.textContent || 'Producto';
+            const precioTexto = card.querySelector('.product-showcase__price, .card-price')?.textContent || '0.00';
+            precio = parseFloat(precioTexto.replace('B/ ', '').trim());
+            imagen = card.querySelector('.product-showcase__media img, .card-img')?.src
+                || `${SERVER_ORIGIN}/images/placeholder.png`;
+        } else {
+            // Fallback: buscar en el DOM del sidebar
+            const sidebarItem = document.querySelector(`.psidebar-item[data-product-id="${productId}"]`);
+            if (sidebarItem) {
+                try {
+                    const productData = JSON.parse(sidebarItem.getAttribute('data-product'));
+                    nombre = productData.nombre;
+                    const discount = productData.descuento || 0;
+                    precio = discount > 0
+                        ? productData.precio * (1 - discount / 100)
+                        : productData.precio;
+                    imagen = productData.imagen;
+                    if (imagen) {
+                        if (!imagen.startsWith('http') && !imagen.startsWith('/')) {
+                            imagen = `${SERVER_ORIGIN}/uploads/${imagen}`;
+                        } else if (imagen.startsWith('/')) {
+                            imagen = `${SERVER_ORIGIN}${imagen}`;
+                        }
+                    } else {
+                        imagen = `${SERVER_ORIGIN}/images/placeholder.png`;
+                    }
+                    categoria = productData.categoria;
+                } catch (e) {
+                    console.error('Error parsing product data from sidebar:', e);
+                }
+            }
+        }
+
+        if (!nombre) {
+            console.error('❌ Producto no encontrado:', productId);
             mostrarNotificacion('Error: Producto no encontrado', 'error');
             return;
         }
-        
-        const nombre = card.querySelector('.product-showcase__title, .card-title')?.textContent || 'Producto';
-        const precioTexto = card.querySelector('.product-showcase__price, .card-price')?.textContent || '0.00';
-        const precio = parseFloat(precioTexto.replace('B/ ', '').trim());
-        const imagen = card.querySelector('.product-showcase__media img, .card-img')?.src
-            || `${SERVER_ORIGIN}/images/placeholder.png`;
         
         console.log('📦 Información del producto:', { nombre, precio, cantidad });
         
@@ -338,13 +486,18 @@ function clearCart() {
 // Actualizar contador
 function actualizarContadorCarrito() {
     const totalItems = calcularTotalItems();
-    const cartCount = document.querySelector('.cart-count');
-    
-    if (cartCount) {
-        cartCount.textContent = totalItems;
-        cartCount.style.display = totalItems > 0 ? 'flex' : 'none';
-        console.log('🔢 Contador actualizado:', totalItems);
+    document.querySelectorAll('.cart-count').forEach((el) => {
+        el.textContent = totalItems;
+        el.style.display = totalItems > 0 ? 'flex' : 'none';
+    });
+    const top = document.getElementById('topbarCartCount');
+    if (top) {
+        top.textContent = totalItems;
+        top.style.display = totalItems > 0 ? 'inline-flex' : 'none';
     }
+    // Notificar al sidebar (y otros listeners) que el carrito cambió
+    window.dispatchEvent(new CustomEvent('cart:updated', { detail: { totalItems } }));
+    console.log('🔢 Contador actualizado:', totalItems);
 }
 
 // Animación del icono
@@ -378,12 +531,18 @@ function toggleCart() {
 // Finalizar pedido
 async function checkout() {
     console.log('🚀 Iniciando checkout...');
-    
+
+    if (!currentUser) {
+        mostrarNotificacion('Inicia sesión para finalizar tu pedido', 'warning');
+        setTimeout(() => { window.location.href = AppConfig.LOGIN_URL; }, 800);
+        return;
+    }
+
     if (carrito.length === 0) {
         mostrarNotificacion('El carrito está vacío', 'warning');
         return;
     }
-    
+
     try {
         // Obtener información del cliente
         const clienteInfo = await obtenerInformacionCliente();
@@ -391,35 +550,35 @@ async function checkout() {
             console.log('❌ Usuario canceló el checkout');
             return;
         }
-        
+
         // Generar resumen
         const resumen = generarResumenPedido(clienteInfo);
-        
+
         // Mostrar confirmación
         const confirmar = confirm(`${resumen.mensaje}\n\n¿Confirmar y enviar pedido?`);
-        
+
         if (confirmar) {
             // Enviar al administrador
             const resultado = await enviarPedidoAlAdmin(resumen);
-            
+
             if (resultado.success) {
                 // Limpiar carrito
                 carrito = [];
                 guardarCarrito();
                 actualizarCarritoUI();
                 actualizarContadorCarrito();
-                
+
                 // Mostrar éxito
                 mostrarNotificacion('✅ Pedido enviado al administrador', 'success');
                 toggleCart();
-                
+
                 // Mostrar confirmación final
                 alert(`🎉 ¡Pedido confirmado!\n\nID: ${resultado.orderId}\nTotal: B/ ${resumen.totales.total.toFixed(2)}\n\nEl administrador te contactará pronto.`);
             } else {
                 throw new Error(resultado.error);
             }
         }
-        
+
     } catch (error) {
         console.error('❌ Error en checkout:', error);
         mostrarNotificacion(`Error: ${error.message}`, 'error');
@@ -433,18 +592,18 @@ async function obtenerInformacionCliente() {
             <div class="checkout-modal" id="clienteModal">
                 <div class="modal-content checkout-modal__panel">
                     <h3><i class="fas fa-paper-plane"></i> Datos de entrega</h3>
-                    <p class="checkout-modal__subtitle">Completa tu información para enviar el pedido al administrador</p>
+                    <p class="checkout-modal__subtitle">Confirma tu información para enviar el pedido al administrador</p>
                     <div class="form-group">
                         <label>Nombre completo *</label>
-                        <input type="text" id="clienteNombre" required placeholder="Tu nombre">
+                        <input type="text" id="clienteNombre" required placeholder="Tu nombre" value="${(currentUser?.name || '').replace(/"/g, '&quot;')}">
                     </div>
                     <div class="form-group">
                         <label>Teléfono *</label>
-                        <input type="tel" id="clienteTelefono" required placeholder="Tu teléfono">
+                        <input type="tel" id="clienteTelefono" required placeholder="Tu teléfono" value="${(currentUser?.phone || '').replace(/"/g, '&quot;')}">
                     </div>
                     <div class="form-group">
                         <label>Dirección *</label>
-                        <textarea id="clienteDireccion" required placeholder="Dirección completa"></textarea>
+                        <textarea id="clienteDireccion" required placeholder="Dirección completa">${(currentUser?.address || '').replace(/</g, '&lt;')}</textarea>
                     </div>
                     <div class="modal-actions">
                         <button onclick="cerrarModalCliente()" class="btn-cancelar">Cancelar</button>
@@ -542,7 +701,8 @@ async function enviarPedidoAlAdmin(resumen) {
             cliente: {
                 nombre: resumen.cliente.nombre,
                 telefono: resumen.cliente.telefono,
-                direccion: resumen.cliente.direccion
+                direccion: resumen.cliente.direccion,
+                email: currentUser?.email || ''
             },
             productos: resumen.productos.map((item) => ({
                 id: item.id,
@@ -555,9 +715,13 @@ async function enviarPedidoAlAdmin(resumen) {
             totales: resumen.totales
         };
 
+        const headers = { 'Content-Type': 'application/json' };
+        const token = AuthService.getToken();
+        if (token) headers.Authorization = `Bearer ${token}`;
+
         const response = await fetch(`${API_BASE_URL}/orders`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers,
             body: JSON.stringify(payload)
         });
 
@@ -684,21 +848,319 @@ function configurarEventos() {
 
 // ==================== FUNCIONES DEL MENÚ ====================
 
+// Conteo de productos por categoría (cacheado en el cliente)
+let productosPorCategoria = {};
+// Mapa de productos por categoría (id → array de productos) — para slideshows
+let productosPorCategoriaLista = {};
+
 // Cargar menú desde API
 async function cargarMenu() {
     try {
         const response = await fetch(`${API_BASE_URL}/menu`);
         if (!response.ok) throw new Error('Error al cargar menú');
-        
+
         const menu = await AppConfig.parseJsonResponse(response);
-        
-        for (const categoriaId in categorias) {
-            const productos = menu[categoriaId] || [];
-            mostrarProductosEnSlideshow(categoriaId, productos);
+        categoriasList = menu.categories || [];
+        categorias = {};
+        productosPorCategoria = {};
+        productosPorCategoriaLista = {};
+        categoriasList.forEach((c) => { categorias[c.id] = c; });
+
+        // Guardar productos por categoría (necesario ANTES de renderizar las secciones)
+        for (const cat of categoriasList) {
+            const productos = (menu.items && menu.items[cat.id]) || [];
+            productosPorCategoria[cat.id] = productos.length;
+            productosPorCategoriaLista[cat.id] = productos;
         }
+
+        // 1) Primero pintamos el navbar (con conteos) y las secciones (con la estructura de slideshow)
+        renderNavbarCategorias();
+        renderMenuSections();
+
+        // 2) Después, ya con los tracks en el DOM, llenamos los slideshows
+        for (const cat of categoriasList) {
+            mostrarProductosEnSlideshow(cat.id, productosPorCategoriaLista[cat.id] || []);
+        }
+
+        // 3) Cargar promos y contacto (en paralelo)
+        await Promise.all([cargarPromos(), cargarContacto()]);
     } catch (error) {
         console.error('Error cargando menú:', error);
         mostrarProductosDeEjemplo();
+        // Aún así intentamos cargar promos y contacto
+        cargarPromos().catch(() => {});
+        cargarContacto().catch(() => {});
+    }
+}
+
+// ============== PROMOS ==============
+let promosList = [];
+
+async function cargarPromos() {
+    const host = document.getElementById('promosGrid');
+    if (!host) return;
+    try {
+        const response = await fetch(`${API_BASE_URL}/promos`, {
+            headers: AuthService.authHeaders()
+        });
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        promosList = await AppConfig.parseJsonResponse(response);
+        renderPromos();
+    } catch (error) {
+        console.error('Error cargando promos:', error);
+        if (host) {
+            host.innerHTML = `
+                <div class="promos-empty">
+                    <i class="fas fa-fire"></i>
+                    <p>Pronto publicaremos nuevas promociones</p>
+                </div>
+            `;
+        }
+    }
+}
+
+function renderPromos() {
+    const host = document.getElementById('promosGrid');
+    if (!host) return;
+    if (!promosList.length) {
+        host.innerHTML = `
+            <div class="promos-empty">
+                <i class="fas fa-fire"></i>
+                <p>No hay promociones activas en este momento</p>
+                <small>Vuelve pronto para descubrir nuevas ofertas</small>
+            </div>
+        `;
+        return;
+    }
+
+    host.innerHTML = promosList.map((p) => {
+        const imageUrl = buildPromoImageUrl(p);
+        const hasDiscount = p.discountPercent > 0;
+        const hasPrice = p.promoPrice != null && p.promoPrice > 0;
+        const validity = formatPromoValidity(p);
+        const now = new Date();
+        const startsInFuture = p.validFrom && new Date(p.validFrom) > now;
+
+        return `
+            <article class="promo-card${startsInFuture ? ' promo-card--scheduled' : ''}">
+                <div class="promo-card__media">
+                    ${imageUrl
+                        ? `<img src="${imageUrl}" alt="${escapeHtml(p.title)}" loading="lazy" onerror="this.onerror=null;this.parentNode.innerHTML='<div class=\\'promo-card__media-placeholder\\'><i class=\\'fas ${p.icon || 'fa-fire'}\\'></i></div>'">`
+                        : `<div class="promo-card__media-placeholder"><i class="fas ${p.icon || 'fa-fire'}"></i></div>`}
+                    ${p.badgeText ? `<span class="promo-card__badge">${escapeHtml(p.badgeText)}</span>` : ''}
+                    ${hasDiscount ? `<span class="promo-card__discount">-${p.discountPercent}<small>%</small></span>` : ''}
+                    ${startsInFuture ? `<span class="promo-card__scheduled-badge"><i class="far fa-clock"></i> Próximamente</span>` : ''}
+                </div>
+                <div class="promo-card__body">
+                    <h3 class="promo-card__title">${escapeHtml(p.title)}</h3>
+                    ${p.description ? `<p class="promo-card__desc">${escapeHtml(p.description)}</p>` : ''}
+                    ${hasPrice ? `
+                    <div class="promo-card__prices">
+                        ${p.originalPrice ? `<span class="promo-card__price-old">B/ ${Number(p.originalPrice).toFixed(2)}</span>` : ''}
+                        <span class="promo-card__price-new">B/ ${Number(p.promoPrice).toFixed(2)}</span>
+                    </div>
+                    ` : ''}
+                    ${validity ? `<div class="promo-card__validity"><i class="far fa-clock"></i> ${validity}</div>` : ''}
+                    <button type="button" class="promo-card__cta" onclick="document.getElementById('menu')?.scrollIntoView({behavior:'smooth'})">
+                        <i class="fas fa-utensils"></i> Ver en el menú
+                    </button>
+                </div>
+            </article>
+        `;
+    }).join('');
+}
+
+function buildPromoImageUrl(promo) {
+    if (!promo.image) return '';
+    if (promo.image.startsWith('http')) return promo.image;
+    if (promo.image.startsWith('/')) return `${SERVER_ORIGIN}${promo.image}`;
+    return `${SERVER_ORIGIN}/uploads/${promo.image}`;
+}
+
+function formatPromoValidity(p) {
+    const fmt = (d) => {
+        if (!d) return null;
+        const date = new Date(d);
+        if (isNaN(date.getTime())) return null;
+        return date.toLocaleDateString('es-PA', { day: '2-digit', month: 'short' });
+    };
+    const from = fmt(p.validFrom);
+    const to = fmt(p.validUntil);
+    if (from && to) return `Válido del ${from} al ${to}`;
+    if (to) return `Válido hasta ${to}`;
+    if (from) return `Válido desde ${from}`;
+    return '';
+}
+
+// ============== CONTACTO ==============
+let contactData = null;
+
+async function cargarContacto() {
+    const host = document.getElementById('contactoGrid');
+    if (!host) return;
+    try {
+        const response = await fetch(`${API_BASE_URL}/contact`);
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        contactData = await AppConfig.parseJsonResponse(response);
+        renderContacto();
+    } catch (error) {
+        console.error('Error cargando contacto:', error);
+        host.innerHTML = `
+            <div class="promos-empty">
+                <i class="fas fa-headset"></i>
+                <p>No se pudo cargar la información de contacto</p>
+            </div>
+        `;
+    }
+}
+
+function renderContacto() {
+    const host = document.getElementById('contactoGrid');
+    if (!host || !contactData) return;
+    const c = contactData;
+    const waClean = String(c.whatsapp || '').replace(/\D/g, '');
+    const waLink = waClean ? `https://wa.me/${waClean}` : null;
+    const phoneLink = c.phone ? `tel:${c.phone.replace(/\s/g, '')}` : null;
+    const emailLink = c.email ? `mailto:${c.email}` : null;
+    const mapsLink = c.mapsUrl || (c.address ? `https://www.google.com/maps/search/${encodeURIComponent(c.address)}` : null);
+
+    const scheduleHtml = (c.hours || []).map((h) => {
+        if (h.closed) return `<li><span class="day">${escapeHtml(h.day)}</span><span class="closed">Cerrado</span></li>`;
+        return `<li><span class="day">${escapeHtml(h.day)}</span><span class="hours">${escapeHtml(h.open || '—')} – ${escapeHtml(h.close || '—')}</span></li>`;
+    }).join('');
+
+    const hasSocial = c.facebook || c.instagram || c.tiktok || waLink;
+    const socialsHtml = hasSocial ? `
+        <div class="contacto-card contacto-social">
+            <h3 class="contacto-social__title"><i class="fas fa-share-alt"></i> Síguenos</h3>
+            <div class="contacto-social__links">
+                ${waLink ? `<a href="${waLink}" target="_blank" rel="noopener" class="contacto-social__link contacto-social__link--wa" title="WhatsApp"><i class="fab fa-whatsapp"></i></a>` : ''}
+                ${c.facebook ? `<a href="${c.facebook}" target="_blank" rel="noopener" class="contacto-social__link contacto-social__link--fb" title="Facebook"><i class="fab fa-facebook-f"></i></a>` : ''}
+                ${c.instagram ? `<a href="${c.instagram}" target="_blank" rel="noopener" class="contacto-social__link contacto-social__link--ig" title="Instagram"><i class="fab fa-instagram"></i></a>` : ''}
+                ${c.tiktok ? `<a href="${c.tiktok}" target="_blank" rel="noopener" class="contacto-social__link contacto-social__link--tk" title="TikTok"><i class="fab fa-tiktok"></i></a>` : ''}
+            </div>
+        </div>
+    ` : '';
+
+    host.innerHTML = `
+        ${phoneLink ? `
+        <a href="${phoneLink}" class="contacto-card">
+            <div class="contacto-card__icon"><i class="fas fa-phone"></i></div>
+            <h3 class="contacto-card__title">Teléfono</h3>
+            <p class="contacto-card__value">${escapeHtml(c.phone)}</p>
+            <p class="contacto-card__sub">Llámanos para hacer tu pedido</p>
+        </a>` : ''}
+        ${waLink ? `
+        <a href="${waLink}" target="_blank" rel="noopener" class="contacto-card">
+            <div class="contacto-card__icon contacto-card__icon--green"><i class="fab fa-whatsapp"></i></div>
+            <h3 class="contacto-card__title">WhatsApp</h3>
+            <p class="contacto-card__value">${escapeHtml(c.phone || c.whatsapp)}</p>
+            <p class="contacto-card__sub">Escríbenos y te respondemos rápido</p>
+        </a>` : ''}
+        ${emailLink ? `
+        <a href="${emailLink}" class="contacto-card">
+            <div class="contacto-card__icon contacto-card__icon--blue"><i class="fas fa-envelope"></i></div>
+            <h3 class="contacto-card__title">Email</h3>
+            <p class="contacto-card__value">${escapeHtml(c.email)}</p>
+            <p class="contacto-card__sub">Envíanos tus consultas</p>
+        </a>` : ''}
+        ${mapsLink ? `
+        <a href="${mapsLink}" target="_blank" rel="noopener" class="contacto-card">
+            <div class="contacto-card__icon contacto-card__icon--red"><i class="fas fa-map-marker-alt"></i></div>
+            <h3 class="contacto-card__title">Ubicación</h3>
+            <p class="contacto-card__value">${escapeHtml(c.address)}</p>
+            <p class="contacto-card__sub">Ver en Google Maps</p>
+        </a>` : ''}
+        ${scheduleHtml ? `
+        <div class="contacto-card contacto-card--schedule">
+            <div class="contacto-card__icon contacto-card__icon--slate"><i class="fas fa-clock"></i></div>
+            <h3 class="contacto-card__title">Horario de atención</h3>
+            <ul class="contacto-card__schedule-list">${scheduleHtml}</ul>
+        </div>` : ''}
+        ${socialsHtml}
+    `;
+}
+
+function renderNavbarCategorias() {
+    const host = document.getElementById('menuNavbarCategories');
+    if (!host) return;
+    if (!categoriasList.length) {
+        host.innerHTML = '';
+        return;
+    }
+
+    // Total de productos (para el chip "Todo")
+    const total = Object.values(productosPorCategoria).reduce((a, b) => a + b, 0);
+
+    const items = categoriasList.map((c) => {
+        const count = productosPorCategoria[c.id] || 0;
+        return `
+            <a href="#menu-${c.id}" class="topbar__chip" data-menu="${c.id}">
+                <span class="topbar__chip-icon"><i class="fas ${c.icon || 'fa-utensils'}"></i></span>
+                <span class="topbar__chip-label">${escapeHtml(c.name)}</span>
+                <span class="topbar__chip-count">${count}</span>
+            </a>
+        `;
+    }).join('');
+
+    host.innerHTML = `
+        <a href="#menu" class="topbar__chip topbar__chip--all active" data-menu="all">
+            <span class="topbar__chip-icon"><i class="fas fa-th-large"></i></span>
+            <span class="topbar__chip-label">Todo</span>
+            <span class="topbar__chip-count">${total}</span>
+        </a>
+        <span class="topbar__chips-divider" aria-hidden="true"></span>
+        ${items}
+    `;
+}
+
+function renderMenuSections() {
+    const host = document.getElementById('menuSections');
+    if (!host) return;
+    if (!categoriasList.length) {
+        host.innerHTML = `
+            <div class="menu-empty">
+                <i class="fas fa-store"></i>
+                <h2>Próximamente más categorías</h2>
+                <p>Vuelve pronto para descubrir nuestro menú completo.</p>
+            </div>
+        `;
+        return;
+    }
+    host.innerHTML = categoriasList.map((c) => `
+        <section id="menu-${c.id}" class="menu-section" data-category="${c.id}">
+            <header class="menu-section__intro">
+                <span class="menu-section__eyebrow"><i class="fas ${c.icon || 'fa-utensils'}"></i> Menú</span>
+                <h2>${escapeHtml(c.name)}</h2>
+                <p class="menu-section__desc">${escapeHtml(c.description || 'Delicioso plato preparado con ingredientes frescos en Brazas$Mar.')}</p>
+            </header>
+            <div class="showcase" data-showcase="${c.id}">
+                <div class="showcase__viewport">
+                    <div class="showcase__track" id="${c.id}-slideshow"></div>
+                </div>
+                <div class="showcase__controls">
+                    <button type="button" class="showcase__arrow showcase__prev" aria-label="Anterior">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                    <div class="showcase__pill">
+                        <div class="showcase__dots"></div>
+                        <button type="button" class="showcase__play-pause" aria-label="Reproducir o Pausar">
+                            <i class="fas fa-pause"></i>
+                        </button>
+                        <span class="showcase__counter">
+                            <span class="current-slide">1</span> / <span class="total-slides">0</span>
+                        </span>
+                    </div>
+                    <button type="button" class="showcase__arrow showcase__next" aria-label="Siguiente">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+            </div>
+        </section>
+    `).join('');
+
+    if (typeof initMenuNavbar === 'function') {
+        setTimeout(() => initMenuNavbar(), 0);
     }
 }
 
@@ -760,7 +1222,7 @@ function createShowcaseSlide(producto, categoriaId, index) {
     const body = document.createElement('div');
     body.className = 'product-showcase__body';
     body.innerHTML = `
-        <p class="product-showcase__category">${escapeHtml(categorias[categoriaId])}</p>
+        <p class="product-showcase__category">${escapeHtml(categorias[categoriaId]?.name || categorias[categoriaId]?.nombre || '')}</p>
         <h3 class="product-showcase__title">${escapeHtml(producto.nombre)}</h3>
         <p class="product-showcase__description">${escapeHtml(descripcion)}</p>
         <div class="product-showcase__meta">
@@ -894,6 +1356,33 @@ function inicializarControlesShowcase(categoriaId, totalSlides) {
         els.next.onclick = () => cambiarSlide(categoriaId, 1);
     }
 
+    // Configurar botón reproducir/pausar
+    const playPauseBtn = els.showcase.querySelector('.showcase__play-pause');
+    if (playPauseBtn) {
+        const icon = playPauseBtn.querySelector('i');
+        if (icon) {
+            icon.className = 'fas fa-pause';
+        }
+        
+        playPauseBtn.onclick = () => {
+            const icon = playPauseBtn.querySelector('i');
+            if (slideshowIntervals[categoriaId]) {
+                // Pausar
+                clearInterval(slideshowIntervals[categoriaId]);
+                delete slideshowIntervals[categoriaId];
+                if (icon) icon.className = 'fas fa-play';
+                playPauseBtn.setAttribute('aria-label', 'Reproducir');
+            } else {
+                // Reproducir
+                slideshowIntervals[categoriaId] = setInterval(() => {
+                    cambiarSlide(categoriaId, 1);
+                }, 9000);
+                if (icon) icon.className = 'fas fa-pause';
+                playPauseBtn.setAttribute('aria-label', 'Pausar');
+            }
+        };
+    }
+
     irASlide(categoriaId, 0);
 
     if (totalSlides > 1) {
@@ -904,39 +1393,100 @@ function inicializarControlesShowcase(categoriaId, totalSlides) {
 }
 
 function initMenuNavbar() {
-    const links = document.querySelectorAll('.menu-navbar__link');
-    const sections = [...links].map((link) => {
-        const id = link.getAttribute('href')?.replace('#', '');
-        return id ? document.getElementById(id) : null;
-    }).filter(Boolean);
+    const links = document.querySelectorAll('.topbar__chip[data-menu], .topbar__nav-link[data-topbar-link]');
+    const chips = document.querySelectorAll('.topbar__chip[data-menu]');
 
-    links.forEach((link) => {
+    chips.forEach((link) => {
         link.addEventListener('click', (e) => {
-            e.preventDefault();
-            const target = document.querySelector(link.getAttribute('href'));
-            if (target) {
-                target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            const target = link.getAttribute('href');
+            if (target && target.startsWith('#')) {
+                const el = document.querySelector(target);
+                if (el) {
+                    e.preventDefault();
+                    el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    chips.forEach((l) => l.classList.remove('active'));
+                    link.classList.add('active');
+                }
             }
-            links.forEach((l) => l.classList.remove('active'));
-            link.classList.add('active');
         });
     });
+
+    // Burger (mobile)
+    const burger = document.getElementById('topbarBurger');
+    const topbar = document.getElementById('topbar');
+    burger?.addEventListener('click', () => {
+        const open = topbar.classList.toggle('is-open');
+        burger.setAttribute('aria-expanded', open ? 'true' : 'false');
+    });
+
+    // Cerrar burger al hacer click en un link
+    document.querySelectorAll('.topbar__nav-link').forEach((link) => {
+        link.addEventListener('click', () => {
+            topbar.classList.remove('is-open');
+            burger?.setAttribute('aria-expanded', 'false');
+        });
+    });
+
+    // IntersectionObserver para resaltar chip activo al scrollear
+    const sectionIds = [...chips].map((l) => l.getAttribute('data-menu')).filter((id) => id && id !== 'all');
+    const sections = sectionIds.map((id) => document.getElementById(`menu-${id}`)).filter(Boolean);
+
+    const setActiveChip = (id) => {
+        chips.forEach((link) => {
+            link.classList.toggle('active', link.getAttribute('data-menu') === id);
+        });
+    };
+
+    const setActiveNav = (id) => {
+        document.querySelectorAll('.topbar__nav-link[data-topbar-link]').forEach((link) => {
+            link.classList.toggle('active', link.getAttribute('data-topbar-link') === id);
+        });
+    };
 
     if (sections.length && 'IntersectionObserver' in window) {
         const observer = new IntersectionObserver(
             (entries) => {
                 entries.forEach((entry) => {
                     if (entry.isIntersecting) {
-                        const id = entry.target.id;
-                        links.forEach((link) => {
-                            link.classList.toggle('active', link.getAttribute('href') === `#${id}`);
-                        });
+                        const id = entry.target.id.replace('menu-', '');
+                        setActiveChip(id);
                     }
                 });
             },
-            { rootMargin: '-45% 0px -45% 0px', threshold: 0 }
+            { rootMargin: '-40% 0px -40% 0px', threshold: 0 }
         );
         sections.forEach((section) => observer.observe(section));
+
+        // Si scrollea al tope (sobre todas las secciones), activar "Todo"
+        window.addEventListener('scroll', () => {
+            const top = window.scrollY;
+            const firstTop = sections[0]?.getBoundingClientRect().top;
+            if (firstTop !== undefined && firstTop > window.innerHeight * 0.4) {
+                setActiveChip('all');
+            }
+        }, { passive: true });
+    }
+
+    // Observer para las secciones #promos y #contacto (resaltan nav-link principal)
+    const promosSection = document.getElementById('promos');
+    const contactoSection = document.getElementById('contacto');
+    if ('IntersectionObserver' in window) {
+        const navObserver = new IntersectionObserver(
+            (entries) => {
+                entries.forEach((entry) => {
+                    if (entry.isIntersecting) {
+                        if (entry.target.id === 'promos') setActiveNav('promos');
+                        else if (entry.target.id === 'contacto') setActiveNav('contacto');
+                        else if (entry.target.id === 'menu') setActiveNav('menu');
+                    }
+                });
+            },
+            { rootMargin: '-40% 0px -40% 0px', threshold: 0 }
+        );
+        if (promosSection) navObserver.observe(promosSection);
+        if (contactoSection) navObserver.observe(contactoSection);
+        const menuEl = document.getElementById('menu');
+        if (menuEl) navObserver.observe(menuEl);
     }
 }
 
@@ -983,10 +1533,9 @@ function mostrarProductosDeEjemplo() {
     }
 }
 
-// En app.js, después de cargar productos
+// Alias global para compatibilidad con sidebar
 window.addToCart = function(productId) {
-    // Tu lógica existente para agregar al carrito
-    // ...
+    agregarAlCarrito(productId, '', 1);
 };
 
 // Función para actualizar el menú (usada desde el admin)

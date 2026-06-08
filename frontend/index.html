@@ -4,226 +4,140 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Brazas$Mar - Pedidos</title>
-    <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="menu-showcase.css">
-    <link rel="stylesheet" href="products-sidebar.css">
+    <link rel="stylesheet" href="style.css?v=2">
+    <link rel="stylesheet" href="menu-showcase.css?v=4">
+    <link rel="stylesheet" href="products-sidebar.css?v=8">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
 </head>
 <body>
-    <header>
-        <section class="jumbotron">
-            <div class="jumbotron-content">
-                <img src="images/logo.jpg" alt="Logo Brazas$Mar" class="jumbotron-logo">
-                <div class="jumbotron-text">
-                    <h1>Brazas$Mar</h1>
-                    <p>¡Pide tu comida favorita y disfruta al instante!</p>
-                </div>
-            </div>
-
-            <div class="cart-floating" onclick="toggleCart()" role="button" aria-label="Abrir carrito">
-                <i class="fanpms fa-shopping-cart"></i>
-                <span class="cart-count">0</span>
-            </div>
-        </section>
-    </header>
-
-<!-- Actualización del body en index.html - Agregar el sidebar antes del page-layout -->
-  
-
-    <!-- ===== SIDEBAR DE PRODUCTOS ===== -->
-    <aside class="products-sidebar" id="productsSidebar" aria-label="Lista de productos">
-        <div class="psidebar__header">
-            <i class="fas fa-utensils"></i>
-            <span>Menú &amp; Precios</span>
-            <button class="psidebar__toggle" id="sidebarToggle" aria-label="Ocultar sidebar" title="Ocultar">
-                <i class="fas fa-chevron-left"></i>
-            </button>
-        </div>
-
-        <div class="psidebar__search">
-            <i class="fas fa-search"></i>
-            <input type="text" id="sidebarSearch" placeholder="Buscar producto..." aria-label="Buscar producto">
-        </div>
-
-        <div class="psidebar__body" id="sidebarBody">
-            <!-- Esqueleto de carga -->
-            <div class="psidebar__skeleton" id="sidebarSkeleton">
-                <div class="skeleton-cat"></div>
-                <div class="skeleton-item"></div>
-                <div class="skeleton-item"></div>
-                <div class="skeleton-item"></div>
-                <div class="skeleton-cat"></div>
-                <div class="skeleton-item"></div>
-                <div class="skeleton-item"></div>
-            </div>
-        </div>
-
-        <div class="psidebar__footer">
-            <span id="sidebarProductCount">Cargando...</span>
-        </div>
-    </aside>
-
-    <!-- Botón para reabrir sidebar (visible cuando está colapsado) -->
-    <button class="psidebar__open-btn" id="sidebarOpenBtn" aria-label="Ver menú" title="Ver menú" hidden>
-        <i class="fas fa-utensils"></i>
-    </button>
-
-    <div class="page-layout">
-        <!-- Resto del contenido existente -->
-        <main class="menu-page">...</main>
-    </div>
-
-    <!-- Scripts -->
-    <script src="config.js"></script>
-    <script src="auth.js"></script>
-    <script src="app.js"></script>
-    <script src="products-sidebar.js"></script>
-
-
-
-    <nav class="menu-navbar" id="menuNavbar" aria-label="Navegación del menú">
-        <div class="menu-navbar__inner">
-            <span class="menu-navbar__brand">Menú</span>
-            <a href="#menu-hamburguesas" class="menu-navbar__link active" data-menu="hamburguesas">
-                <i class="fas fa-burger"></i> Hamburguesas
+    <!-- HEADER PRINCIPAL (sticky) -->
+    <header class="topbar" id="topbar">
+        <div class="topbar__inner">
+            <a href="/" class="topbar__brand" aria-label="Brazas$Mar inicio">
+                <span class="topbar__logo">
+                    <img src="images/logo.jpg" alt="Brazas$Mar">
+                </span>
+                <span class="topbar__brand-text">
+                    <span class="topbar__brand-name">Brazas<span class="topbar__brand-accent">&</span>Mar</span>
+                    <span class="topbar__brand-tag">Sabor a la brasa</span>
+                </span>
             </a>
-            <a href="#menu-especiales" class="menu-navbar__link" data-menu="especiales">
-                <i class="fas fa-star"></i> Especiales
-            </a>
-            <a href="#menu-cerdo" class="menu-navbar__link" data-menu="cerdo">
-                <i class="fas fa-drumstick-bite"></i> Combo Cerdo
-            </a>
-        </div>
-    </nav>
 
-    <div class="page-layout">
+            <nav class="topbar__nav" aria-label="Navegación principal">
+                <a href="#menu" class="topbar__nav-link" data-topbar-link="menu">
+                    <i class="fas fa-utensils"></i> <span>Menú</span>
+                </a>
+                <a href="#promos" class="topbar__nav-link" data-topbar-link="promos">
+                    <i class="fas fa-fire"></i> <span>Promos</span>
+                </a>
+                <a href="#contacto" class="topbar__nav-link" data-topbar-link="contacto">
+                    <i class="fas fa-headset"></i> <span>Contacto</span>
+                </a>
+            </nav>
 
-        <!-- ===== SIDEBAR DE PRODUCTOS ===== -->
-        <aside class="products-sidebar" id="productsSidebar" aria-label="Lista de productos">
-            <div class="psidebar__header">
-                <i class="fas fa-utensils"></i>
-                <span>Menú &amp; Precios</span>
-                <button class="psidebar__toggle" id="sidebarToggle" aria-label="Ocultar sidebar" title="Ocultar">
-                    <i class="fas fa-chevron-left"></i>
+            <div class="topbar__actions">
+                <button class="topbar__icon-btn topbar__search-btn" id="topbarSearchBtn" aria-label="Buscar">
+                    <i class="fas fa-search"></i>
+                </button>
+                <button class="topbar__icon-btn topbar__cart-btn" id="topbarCartBtn" onclick="toggleCart()" aria-label="Carrito">
+                    <i class="fas fa-shopping-bag"></i>
+                    <span class="topbar__badge" id="topbarCartCount">0</span>
+                </button>
+
+                <a href="/mi-cuenta" class="topbar__account-link" id="accountNavLink">
+                    <i class="fas fa-user-circle"></i>
+                    <span id="accountNavLabel">Ingresar</span>
+                </a>
+
+                <div class="topbar__user" id="userChip"></div>
+
+                <button class="topbar__burger" id="topbarBurger" aria-label="Menú" aria-expanded="false">
+                    <span></span><span></span><span></span>
                 </button>
             </div>
+        </div>
 
-            <div class="psidebar__search">
-                <i class="fas fa-search"></i>
-                <input type="text" id="sidebarSearch" placeholder="Buscar producto..." aria-label="Buscar producto">
-            </div>
-
-            <div class="psidebar__body" id="sidebarBody">
-                <!-- Esqueleto de carga -->
-                <div class="psidebar__skeleton" id="sidebarSkeleton">
-                    <div class="skeleton-cat"></div>
-                    <div class="skeleton-item"></div>
-                    <div class="skeleton-item"></div>
-                    <div class="skeleton-item"></div>
-                    <div class="skeleton-cat"></div>
-                    <div class="skeleton-item"></div>
-                    <div class="skeleton-item"></div>
+        <!-- Sub-nav de categorías (scroll horizontal en mobile) -->
+        <div class="topbar__subnav">
+            <div class="topbar__subnav-inner">
+                <div class="topbar__chips" id="menuNavbarCategories">
+                    <!-- "Todo" + categorías generadas dinámicamente desde /api/categories -->
                 </div>
             </div>
+        </div>
+    </header>
 
-            <div class="psidebar__footer">
-                <span id="sidebarProductCount">Cargando...</span>
-            </div>
-        </aside>
+    <!-- Botón flotante carrito (solo mobile) -->
+    <button class="cart-floating" onclick="toggleCart()" aria-label="Abrir carrito" id="cartFloatingBtn">
+        <i class="fas fa-shopping-bag"></i>
+        <span class="cart-count">0</span>
+    </button>
 
-        <!-- Botón para reabrir sidebar (visible cuando está colapsado) -->
-        <button class="psidebar__open-btn" id="sidebarOpenBtn" aria-label="Ver menú" title="Ver menú" hidden>
-            <i class="fas fa-utensils"></i>
+    <!-- Botón para abrir el sidebar (catálogo) -->
+    <button id="sidebarOpenBtn" class="psidebar__open-btn" aria-label="Abrir catálogo" hidden>
+        <i class="fas fa-list"></i>
+    </button>
+
+    <!-- Sidebar de productos -->
+    <aside id="productsSidebar" class="products-sidebar">
+        <button type="button" class="psidebar__tab" id="sidebarTab" aria-label="Ocultar/mostrar sidebar">
+            <i class="fas fa-chevron-right" id="sidebarTabIcon"></i>
+            <span class="psidebar__tab-label" id="sidebarTabLabel">Ocultar</span>
         </button>
+        <div class="psidebar__header">
+            <i class="fas fa-utensils psidebar__header-icon"></i>
+            <div class="psidebar__header-content">
+                <span class="psidebar__header-title">Menú Completo</span>
+                <span class="psidebar__header-subtitle" id="sidebarProductCountHeader">0 productos</span>
+            </div>
+            <button id="sidebarToggle" class="psidebar__toggle" aria-label="Cerrar sidebar">
+                <i class="fas fa-chevron-right"></i>
+            </button>
+        </div>
+        <div class="psidebar__search">
+            <i class="fas fa-search"></i>
+            <input type="text" id="sidebarSearch" placeholder="Buscar plato o bebida...">
+        </div>
+        <div class="psidebar__body" id="sidebarBody">
+            <!-- Los productos se cargan dinámicamente aquí desde products-sidebar.js -->
+        </div>
+        <div class="psidebar__footer">
+            <span id="sidebarProductCount">0 productos</span>
+        </div>
+    </aside>
+    <div class="page-layout" id="menu">
 
-        <main class="menu-page">
-        <!-- Hamburguesas -->
-        <section id="menu-hamburguesas" class="menu-section" data-category="hamburguesas">
-            <header class="menu-section__intro">
-                <span class="menu-section__eyebrow">Nuestro menú</span>
-                <h2>Hamburguesas</h2>
-                <p class="menu-section__desc">
-                    Carne a la parrilla, pan artesanal e ingredientes frescos en cada bocado.
-                    Hamburguesas jugosas, generosas y hechas al momento para que disfrutes el sabor de la brasa.
-                </p>
+        <main class="menu-page" id="menuPage">
+        <!-- Las secciones se renderizan dinámicamente desde /api/categories -->
+        <div id="menuSections"></div>
+
+        <!-- ============ PROMOS ============ -->
+        <section id="promos" class="promos-section" aria-labelledby="promos-title">
+            <header class="promos-section__intro">
+                <span class="promos-section__eyebrow"><i class="fas fa-fire"></i> Ofertas especiales</span>
+                <h2 id="promos-title">Promos de la semana</h2>
+                <p>Aprovecha nuestras promociones activas. Válidas por tiempo limitado.</p>
             </header>
-
-            <div class="showcase" data-showcase="hamburguesas">
-                <div class="showcase__viewport">
-                    <div class="showcase__track" id="hamburguesas-slideshow"></div>
-                </div>
-                <div class="showcase__controls">
-                    <button type="button" class="showcase__arrow showcase__prev" aria-label="Anterior">
-                        <i class="fas fa-chevron-left"></i>
-                    </button>
-                    <div class="showcase__dots"></div>
-                    <span class="showcase__counter">
-                        <span class="current-slide">1</span> / <span class="total-slides">0</span>
-                    </span>
-                    <button type="button" class="showcase__arrow showcase__next" aria-label="Siguiente">
-                        <i class="fas fa-chevron-right"></i>
-                    </button>
+            <div class="promos-grid" id="promosGrid">
+                <div class="promos-empty">
+                    <i class="fas fa-fire"></i>
+                    <p>Cargando promociones...</p>
                 </div>
             </div>
         </section>
 
-        <!-- Especiales -->
-        <section id="menu-especiales" class="menu-section" data-category="especiales">
-            <header class="menu-section__intro">
-                <span class="menu-section__eyebrow">Recomendados</span>
-                <h2>Especiales</h2>
-                <p class="menu-section__desc">
-                    Platos únicos de la casa con recetas exclusivas y sabores intensos.
-                    Ideales cuando quieres algo diferente: porciones abundantes y presentación premium.
-                </p>
+        <!-- ============ CONTACTO ============ -->
+        <section id="contacto" class="contacto-section" aria-labelledby="contacto-title">
+            <header class="contacto-section__intro">
+                <span class="contacto-section__eyebrow"><i class="fas fa-headset"></i> Estamos para ayudarte</span>
+                <h2 id="contacto-title">Contáctanos</h2>
+                <p>Visítanos, llámanos o escríbenos por WhatsApp. ¡Te esperamos!</p>
             </header>
-
-            <div class="showcase" data-showcase="especiales">
-                <div class="showcase__viewport">
-                    <div class="showcase__track" id="especiales-slideshow"></div>
-                </div>
-                <div class="showcase__controls">
-                    <button type="button" class="showcase__arrow showcase__prev" aria-label="Anterior">
-                        <i class="fas fa-chevron-left"></i>
-                    </button>
-                    <div class="showcase__dots"></div>
-                    <span class="showcase__counter">
-                        <span class="current-slide">1</span> / <span class="total-slides">0</span>
-                    </span>
-                    <button type="button" class="showcase__arrow showcase__next" aria-label="Siguiente">
-                        <i class="fas fa-chevron-right"></i>
-                    </button>
-                </div>
-            </div>
-        </section>
-
-        <!-- Combo Cerdo -->
-        <section id="menu-cerdo" class="menu-section" data-category="cerdo">
-            <header class="menu-section__intro">
-                <span class="menu-section__eyebrow">A la brasa</span>
-                <h2>Combo Cerdo</h2>
-                <p class="menu-section__desc">
-                    Costillas y cortes de cerdo marinados, cocinados a fuego lento y terminados en la parrilla.
-                    Combos completos con guarniciones para compartir en familia o con amigos.
-                </p>
-            </header>
-
-            <div class="showcase" data-showcase="cerdo">
-                <div class="showcase__viewport">
-                    <div class="showcase__track" id="cerdo-slideshow"></div>
-                </div>
-                <div class="showcase__controls">
-                    <button type="button" class="showcase__arrow showcase__prev" aria-label="Anterior">
-                        <i class="fas fa-chevron-left"></i>
-                    </button>
-                    <div class="showcase__dots"></div>
-                    <span class="showcase__counter">
-                        <span class="current-slide">1</span> / <span class="total-slides">0</span>
-                    </span>
-                    <button type="button" class="showcase__arrow showcase__next" aria-label="Siguiente">
-                        <i class="fas fa-chevron-right"></i>
-                    </button>
+            <div class="contacto-grid" id="contactoGrid">
+                <div class="contacto-loading">
+                    <i class="fas fa-spinner fa-spin"></i>
+                    <p>Cargando información de contacto...</p>
                 </div>
             </div>
         </section>
@@ -262,95 +176,139 @@
                     </div>
                 </div>
 
-                <div class="cart-actions">
-                    <button class="btn-clear" onclick="clearCart()">
-                        <i class="fas fa-trash"></i> Vaciar Carrito
-                    </button>
-                    <button class="btn-checkout" onclick="checkout()">
-                        <i class="fas fa-check"></i> Finalizar Pedido
-                    </button>
-                </div>
+                 <div class="cart-actions">
+                     <button class="btn-clear" onclick="clearCart()">
+                         <i class="fas fa-trash"></i> Vaciar Carrito
+                     </button>
+                     <button class="btn-checkout btn-checkout-centered" onclick="checkout()">
+                         <i class="fas fa-check"></i> Finalizar Pedido
+                     </button>
+                 </div>
             </div>
         </div>
 
-        <section class="order-section order-section--pro" aria-labelledby="order-section-title">
-            <div class="order-section__glow" aria-hidden="true"></div>
-            <div class="order-section__card">
-                <div class="order-section__header">
-                    <span class="order-section__badge">
-                        <i class="fas fa-bolt"></i> Entrega rápida
-                    </span>
-                    <h2 id="order-section-title" class="order-section__title">Finaliza tu pedido</h2>
-                    <p class="order-section__subtitle">
-                        Revisa tu carrito y envía el pedido directo al equipo de Brazas$Mar.
-                    </p>
-                </div>
-
-                <ul class="order-section__steps">
-                    <li><span>1</span> Agrega productos al carrito</li>
-                    <li><span>2</span> Confirma tus datos de entrega</li>
-                    <li><span>3</span> Envía al administrador</li>
-                </ul>
-
-                <div class="order-options order-options--pro">
-                    <button type="button" class="send-order-btn send-order-btn--primary" onclick="checkout()">
-                        <span class="send-order-btn__icon">
-                            <i class="fas fa-paper-plane"></i>
-                        </span>
-                        <span class="send-order-btn__text">
-                            <strong>Enviar Pedido al Administrador</strong>
-                            <small>Confirmación inmediata</small>
-                        </span>
-                        <i class="fas fa-arrow-right send-order-btn__arrow"></i>
-                    </button>
-
-                    <a id="emailOrderBtn" class="send-email-btn send-email-btn--secondary">
-                        <i class="fas fa-envelope"></i>
-                        <span>Enviar por correo</span>
-                    </a>
-                </div>
-
-                <div class="order-info order-info--pro">
-                    <div class="order-info__item">
-                        <i class="fas fa-shield-alt"></i>
-                        <span>Pedido seguro con ID de seguimiento</span>
-                    </div>
-                    <div class="order-info__item">
-                        <i class="fas fa-list-check"></i>
-                        <span>Incluye cantidades y totales detallados</span>
-                    </div>
-                    <div class="order-info__item">
-                        <i class="fas fa-headset"></i>
-                        <span>Te contactamos para confirmar la entrega</span>
-                    </div>
-                </div>
-            </div>
-        </section>
         </main>
 
     </div><!-- /.page-layout -->
 
-    <footer class="site-footer">
-        <div class="footer-content">
-            <p>&copy; <span id="current-year">2026</span> Brazas$Mar | Todos los derechos reservados</p>
-            <a href="/login" class="admin-footer-link" title="Panel de administración">
-                <i class="fas fa-user-shield"></i> Admin
-            </a>
-            <div class="social-buttons">
-                <a href="https://www.facebook.com/tuCuenta" target="_blank" class="social-btn facebook">
-                    <i class="fab fa-facebook-f"></i> Facebook
-                </a>
-                <a href="https://www.instagram.com/tuCuenta" target="_blank" class="social-btn instagram">
-                    <i class="fab fa-instagram"></i> Instagram
-                </a>
-                <a href="https://wa.me/50761105082" target="_blank" class="social-btn whatsapp">
-                    <i class="fab fa-whatsapp"></i> WhatsApp
+    <section class="order-section order-section--pro" aria-labelledby="order-section-title">
+        <div class="order-section__glow" aria-hidden="true"></div>
+        <div class="order-section__card">
+            <div class="order-section__header">
+                <span class="order-section__badge">
+                    <i class="fas fa-bolt"></i> Entrega rápida
+                </span>
+                <h2 id="order-section-title" class="order-section__title">Finaliza tu pedido</h2>
+                <p class="order-section__subtitle">
+                    Revisa tu carrito y envía el pedido directo al equipo de Brazas$Mar.
+                </p>
+            </div>
+
+            <ul class="order-section__steps">
+                <li><span>1</span> Agrega productos al carrito</li>
+                <li><span>2</span> Confirma tus datos de entrega</li>
+                <li><span>3</span> Envía al administrador</li>
+            </ul>
+
+            <div class="order-options order-options--pro">
+                <button type="button" class="send-order-btn send-order-btn--primary" onclick="checkout()">
+                    <span class="send-order-btn__icon">
+                        <i class="fas fa-paper-plane"></i>
+                    </span>
+                    <span class="send-order-btn__text">
+                        <strong>Enviar Pedido al Administrador</strong>
+                        <small>Confirmación inmediata</small>
+                    </span>
+                    <i class="fas fa-arrow-right send-order-btn__arrow"></i>
+                </button>
+
+                <a id="emailOrderBtn" class="send-email-btn send-email-btn--secondary">
+                    <i class="fas fa-envelope"></i>
+                    <span>Enviar por correo</span>
                 </a>
             </div>
+
+            <div class="order-info order-info--pro">
+                <div class="order-info__item">
+                    <i class="fas fa-shield-alt"></i>
+                    <span>Pedido seguro con ID de seguimiento</span>
+                </div>
+                <div class="order-info__item">
+                    <i class="fas fa-list-check"></i>
+                    <span>Incluye cantidades y totales detallados</span>
+                </div>
+                <div class="order-info__item">
+                    <i class="fas fa-headset"></i>
+                    <span>Te contactamos para confirmar la entrega</span>
+                </div>
+            </div>
         </div>
-    </footer>
+    </section>
+
+     <footer class="site-footer">
+         <div class="footer-content">
+             <div class="footer-grid">
+                 <div class="footer-brand">
+                     <div class="footer-logo">
+                         <img src="images/logo.jpg" alt="Logo Brazas$Mar">
+                     </div>
+                     <div>
+                         <h3>Brazas<span class="auth-accent">$</span>Mar</h3>
+                         <p class="footer-tagline">Sabor auténtico a la brasa, directo a tu puerta.</p>
+                         <div class="footer-social">
+                             <a href="https://www.facebook.com/tuCuenta" target="_blank" rel="noopener" aria-label="Facebook">
+                                 <i class="fab fa-facebook-f"></i>
+                             </a>
+                             <a href="https://www.instagram.com/tuCuenta" target="_blank" rel="noopener" aria-label="Instagram">
+                                 <i class="fab fa-instagram"></i>
+                             </a>
+                             <a href="https://wa.me/50761105082" target="_blank" rel="noopener" aria-label="WhatsApp">
+                                 <i class="fab fa-whatsapp"></i>
+                             </a>
+                         </div>
+                     </div>
+                 </div>
+                 <div class="footer-links">
+                     <h4>Menú</h4>
+                     <ul>
+                         <li><a href="#menu-hamburguesas">Hamburguesas</a></li>
+                         <li><a href="#menu-especiales">Especiales</a></li>
+                         <li><a href="#menu-cerdo">Combo Cerdo</a></li>
+                     </ul>
+                 </div>
+                 <div class="footer-links">
+                     <h4>Mi cuenta</h4>
+                     <ul>
+                         <li><a href="/mi-cuenta">Mi perfil</a></li>
+                         <li><a href="/mi-cuenta" data-account-section="orders">Mis pedidos</a></li>
+                         <li><a href="/registro">Crear cuenta</a></li>
+                         <li><a href="/login">Iniciar sesión</a></li>
+                     </ul>
+                 </div>
+                 <div class="footer-contact">
+                     <h4>Contacto</h4>
+                     <ul>
+                         <li><i class="fas fa-phone"></i> <a href="tel:+50761105082">+507 6978-8286</a></li>
+                         <li><i class="fas fa-map-marker-alt"></i> Panamá, Darién, Metetí</li>
+                         <li><i class="fas fa-clock"></i> Lun-Dom: 11:00 AM - 1:00 AM</li>
+                     </ul>
+                 </div>
+             </div>
+             <div class="footer-bottom">
+                 <p>&copy; <span id="current-year">2026</span> <strong>Brazas&Mar</strong> · Todos los derechos reservados</p>
+                 <div class="footer-legal">
+                     <a href="#">Términos</a>
+                     <span>·</span>
+                     <a href="#">Privacidad</a>
+                     <span>·</span>
+                     <a href="#">Cookies</a>
+                 </div>
+             </div>
+         </div>
+     </footer>
 
     <script src="config.js"></script>
+    <script src="auth.js"></script>
     <script src="app.js"></script>
     <script src="products-sidebar.js"></script>
 </body>

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Panel - Brazas$Mar</title>
+    <title>Admin Panel - Brazas&Mar</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="admin.css">
     <link rel="stylesheet" href="admin-pedidos-cards.css">
@@ -21,7 +21,7 @@
                         <i class="fas fa-utensils"></i>
                     </div>
                     <div class="logo-text">
-                        <h2>Brazas<span class="logo-accent">$</span>Mar</h2>
+                        <h2>Brazas<span class="logo-accent">&</span>Mar</h2>
                         <p>Admin Panel</p>
                     </div>
                 </div>
@@ -46,12 +46,49 @@
                         <span class="nav-badge" id="counter-list">0</span>
                     </button>
 
+                    <button class="nav-item" onclick="showSection('categories')">
+                        <div class="nav-icon">
+                            <i class="fas fa-tags"></i>
+                        </div>
+                        <span class="nav-text">Categorías</span>
+                        <span class="nav-badge" id="counter-categories">0</span>
+                    </button>
+
                     <button class="nav-item" onclick="showSection('pedidos')" id="nav-pedidos">
                         <div class="nav-icon">
                             <i class="fas fa-receipt"></i>
                         </div>
                         <span class="nav-text">Pedidos</span>
                         <span class="nav-badge nav-badge--alert" id="orders-badge" style="display:none;">0</span>
+                    </button>
+
+                    <button class="nav-item" onclick="showSection('ventas-locales')" id="nav-ventas-locales">
+                        <div class="nav-icon">
+                            <i class="fas fa-cash-register"></i>
+                        </div>
+                        <span class="nav-text">Ventas Locales</span>
+                    </button>
+
+                    <button class="nav-item" onclick="showSection('ventas-realizadas')" id="nav-ventas-realizadas">
+                        <div class="nav-icon">
+                            <i class="fas fa-history"></i>
+                        </div>
+                        <span class="nav-text">Ventas Realizadas</span>
+                    </button>
+
+                    <button class="nav-item" onclick="showSection('promos')">
+                        <div class="nav-icon">
+                            <i class="fas fa-fire"></i>
+                        </div>
+                        <span class="nav-text">Promos</span>
+                        <span class="nav-badge" id="counter-promos">0</span>
+                    </button>
+
+                    <button class="nav-item" onclick="showSection('contacto-admin')">
+                        <div class="nav-icon">
+                            <i class="fas fa-headset"></i>
+                        </div>
+                        <span class="nav-text">Contacto</span>
                     </button>
                 </div>
                 
@@ -75,27 +112,35 @@
                 
                 <div class="nav-group">
                     <h3 class="nav-title">Sistema</h3>
-                    <a href="/" class="nav-item" target="_blank">
+                    <a href="/" class="nav-item">
                         <div class="nav-icon">
-                            <i class="fas fa-eye"></i>
+                            <i class="fas fa-store"></i>
                         </div>
                         <span class="nav-text">Ver Tienda</span>
                     </a>
-                    
-                    <button class="nav-item" onclick="refreshData()">
-                        <div class="nav-icon">
-                            <i class="fas fa-sync-alt"></i>
-                        </div>
-                        <span class="nav-text">Actualizar</span>
-                    </button>
-                    
-                    <button class="nav-item logout" onclick="logout()">
-                        <div class="nav-icon">
-                            <i class="fas fa-sign-out-alt"></i>
-                        </div>
-                        <span class="nav-text">Cerrar Sesión</span>
-                    </button>
-                </div>
+                     
+                     <button class="nav-item" onclick="refreshData()">
+                         <div class="nav-icon">
+                             <i class="fas fa-sync-alt"></i>
+                         </div>
+                         <span class="nav-text">Actualizar</span>
+                     </button>
+                     
+                     <button class="nav-item" onclick="showSection('analytics')">
+                         <div class="nav-icon">
+                             <i class="fas fa-chart-line"></i>
+                         </div>
+                         <span class="nav-text">Analíticas</span>
+                         <span class="nav-badge" id="analytics-badge">0</span>
+                     </button>
+                     
+                     <button class="nav-item logout" onclick="logout()">
+                         <div class="nav-icon">
+                             <i class="fas fa-sign-out-alt"></i>
+                         </div>
+                         <span class="nav-text">Cerrar Sesión</span>
+                     </button>
+                 </div>
             </div>
             
             <div class="sidebar-footer">
@@ -120,8 +165,13 @@
                     <h1 id="section-title">Agregar Producto</h1>
                     <p id="section-description">Administra los productos del menú</p>
                 </div>
-                
+
                 <div class="header-right">
+                    <a href="/" class="admin-go-store" title="Volver a la tienda">
+                        <i class="fas fa-store"></i>
+                        <span>Tienda</span>
+                    </a>
+                    <div id="adminUserSlot" class="admin-user-slot"></div>
                     <button type="button" class="admin-notify-btn" id="adminNotifyBtn" title="Notificaciones de pedidos" onclick="toggleNotificationsPanel()">
                         <i class="fas fa-bell"></i>
                         <span class="admin-notify-badge" id="adminNotifyBadge" style="display:none;">0</span>
@@ -362,36 +412,548 @@
                     </div>
                 </section>
 
-                <!-- Pedidos de clientes -->
-                <section id="pedidos" class="admin-section">
-                    <div class="section-card">
-                        <div class="card-header">
-                            <div class="header-content">
-                                <div>
-                                    <h2><i class="fas fa-receipt"></i> Pedidos de clientes</h2>
-                                    <p>Pedidos enviados desde la tienda · actualización automática</p>
-                                </div>
-                                <div class="header-actions">
-                                    <button type="button" class="btn-icon" onclick="cargarPedidosAdmin()" title="Actualizar pedidos">
-                                        <i class="fas fa-sync-alt"></i>
-                                    </button>
-                                    <button type="button" class="btn-secondary" onclick="solicitarPermisoNotificaciones()" style="padding:10px 16px;flex:none;">
-                                        <i class="fas fa-bell"></i> Activar alertas
-                                    </button>
+                 <!-- Gestión de categorías -->
+                 <section id="categories" class="admin-section">
+                     <div class="section-card">
+                         <div class="card-header">
+                             <div class="header-content">
+                                 <div>
+                                     <h2><i class="fas fa-tags"></i> Categorías del menú</h2>
+                                     <p>Crea y elimina categorías. Aparecerán automáticamente en la tienda.</p>
+                                 </div>
+                                 <div class="header-actions">
+                                     <button type="button" class="btn-icon" onclick="loadCategories()" title="Actualizar">
+                                         <i class="fas fa-sync-alt"></i>
+                                     </button>
+                                 </div>
+                             </div>
+                         </div>
+
+                         <form id="categoryForm" class="modern-form category-form">
+                             <div class="form-row">
+                                 <div class="form-group">
+                                     <label for="catName"><i class="fas fa-tag"></i> Nombre</label>
+                                     <input type="text" id="catName" required maxlength="40" placeholder="Ej: Bebidas, Pollo, Ensaladas">
+                                 </div>
+                                 <div class="form-group">
+                                     <label for="catIcon"><i class="fas fa-icons"></i> Icono (FontAwesome)</label>
+                                     <select id="catIcon">
+                                         <option value="fa-utensils">🍴 Utensilios</option>
+                                         <option value="fa-burger">🍔 Hamburguesa</option>
+                                         <option value="fa-drumstick-bite">🍗 Pollo</option>
+                                         <option value="fa-fish">🐟 Pescado</option>
+                                         <option value="fa-pizza-slice">🍕 Pizza</option>
+                                         <option value="fa-hotdog">🌭 Hot dog</option>
+                                         <option value="fa-bowl-rice">🍚 Arroz</option>
+                                         <option value="fa-mug-hot">☕ Bebidas calientes</option>
+                                         <option value="fa-glass-water">💧 Agua</option>
+                                         <option value="fa-wine-bottle">🍷 Bebidas</option>
+                                         <option value="fa-ice-cream">🍦 Postres</option>
+                                         <option value="fa-cookie-bite">🍪 Snacks</option>
+                                         <option value="fa-leaf">🥗 Ensaladas</option>
+                                         <option value="fa-star">⭐ Destacados</option>
+                                         <option value="fa-fire">🔥 Populares</option>
+                                     </select>
+                                 </div>
+                                 <div class="form-group" style="align-self: end;">
+                                     <button type="submit" class="btn-primary" id="catSubmitBtn">
+                                         <i class="fas fa-plus"></i> Crear categoría
+                                     </button>
+                                 </div>
+                             </div>
+                             <div id="categoryMessage" class="auth-message" hidden></div>
+                         </form>
+
+                         <div id="categoriesList" class="categories-grid">
+                             <p class="muted">Cargando categorías...</p>
+                         </div>
+                     </div>
+                 </section>
+
+                 <!-- Pedidos de clientes -->
+                 <section id="pedidos" class="admin-section">
+                     <div class="section-card">
+                         <div class="card-header">
+                             <div class="header-content">
+                                 <div>
+                                     <h2><i class="fas fa-receipt"></i> Pedidos de clientes</h2>
+                                     <p>Pedidos enviados desde la tienda · actualización automática</p>
+                                 </div>
+                                 <div class="header-actions">
+                                     <button type="button" class="btn-icon" onclick="cargarPedidosAdmin()" title="Actualizar pedidos">
+                                         <i class="fas fa-sync-alt"></i>
+                                     </button>
+                                     <button type="button" class="btn-secondary" onclick="solicitarPermisoNotificaciones()" style="padding:10px 16px;flex:none;">
+                                         <i class="fas fa-bell"></i> Activar alertas
+                                     </button>
+                                 </div>
+                             </div>
+                         </div>
+                         <div class="pedidos-lista-wrap">
+                             <div class="pedidos-lista-header-bar">
+                                 <h2><i class="fas fa-list-ul"></i> Listado en tiempo real</h2>
+                                 <span class="pedidos-count-badge" id="pedidosCountBadge">0 pedidos</span>
+                             </div>
+                             <div class="pedidos-lista pedidos-lista--grid" id="listaPedidosAdmin"></div>
+                         </div>
+                     </div>
+                 </section>
+                 
+                   <!-- Ventas Locales -->
+                   <section id="ventas-locales" class="admin-section">
+                       <div class="section-card">
+                           <div class="card-header">
+                               <div class="header-content">
+                                   <div>
+                                       <h2><i class="fas fa-cash-register"></i> Ventas Locales</h2>
+                                       <p>Selecciona los productos y registra la venta directa</p>
+                                   </div>
+                                   <div class="header-actions">
+                                       <button type="button" class="btn-icon" onclick="cargarHistorialVentasLocales()" title="Actualizar historial">
+                                           <i class="fas fa-sync-alt"></i>
+                                       </button>
+                                   </div>
+                               </div>
+                           </div>
+
+                           <div class="ventas-locales-main">
+                               <!-- Sección izquierda: Productos + Carrito -->
+                               <div class="ventas-locales-left">
+                                    <!-- Datos del cliente -->
+                                    <div class="vl-cliente-bar">
+                                        <div class="form-group" style="flex:1;margin-bottom:0;">
+                                            <label for="vlClienteNombre"><i class="fas fa-user"></i> Cliente *</label>
+                                            <input type="text" id="vlClienteNombre" required maxlength="80" placeholder="Nombre del cliente" class="form-control" oninput="actualizarNombreCliente()">
+                                            <div id="vlClientePreview" class="vl-cliente-preview" style="display:none;">
+                                                <i class="fas fa-user-check"></i> <span id="vlClientePreviewText"></span>
+                                            </div>
+                                        </div>
+                                        <div class="form-group vl-mesa-group">
+                                            <label for="vlMesa"><i class="fas fa-chair"></i> Mesa</label>
+                                            <input type="text" id="vlMesa" maxlength="20" placeholder="#" class="form-control">
+                                        </div>
+                                        <div class="form-group vl-notas-group">
+                                            <label for="vlNotas"><i class="fas fa-sticky-note"></i> Notas</label>
+                                            <input type="text" id="vlNotas" maxlength="200" placeholder="Sin cebolla, poco cocido..." class="form-control">
+                                        </div>
+                                    </div>
+
+                                   <!-- Buscador de productos -->
+                                   <div class="vl-search-bar">
+                                       <i class="fas fa-search"></i>
+                                       <input type="text" id="vlSearchInput" placeholder="Buscar producto..." class="form-control" oninput="filtrarProductosVentaLocal()">
+                                   </div>
+
+                                   <!-- Grid de productos -->
+                                   <div class="vl-productos-header">
+                                       <h3><i class="fas fa-utensils"></i> Menú</h3>
+                                       <span class="vl-productos-count" id="vlProductosCount">0 productos</span>
+                                   </div>
+                                   <div id="vlProductosGrid" class="vl-productos-grid">
+                                       <p class="muted">Cargando productos...</p>
+                                   </div>
+
+                                   <!-- Carrito de venta local -->
+                                   <div class="vl-cart-section">
+                                       <div class="vl-cart-header">
+                                           <h3><i class="fas fa-shopping-cart"></i> Venta Actual</h3>
+                                           <span class="vl-cart-count" id="vlCartCount">0 items</span>
+                                       </div>
+                                       <div id="vlCartItems" class="vl-cart-items">
+                                           <div class="vl-cart-empty">
+                                               <i class="fas fa-cart-plus"></i>
+                                               <p>Haz clic en un producto para agregarlo</p>
+                                           </div>
+                                       </div>
+                                       <div class="vl-cart-footer">
+                                           <div class="vl-cart-total">
+                                               <span>TOTAL:</span>
+                                               <strong id="vlTotalDisplay">B/ 0.00</strong>
+                                           </div>
+                                           <div id="vlMessage" class="auth-message" hidden></div>
+                                           <button type="button" class="btn-primary btn-lg" id="vlSubmitBtn" onclick="registrarVentaLocal()">
+                                               <i class="fas fa-check-circle"></i> Registrar Venta
+                                           </button>
+                                       </div>
+                                   </div>
+                               </div>
+
+                               <!-- Sección derecha: Historial -->
+                               <div class="ventas-locales-right">
+                                   <h3><i class="fas fa-history"></i> Historial de Ventas Locales</h3>
+                                   <div class="vl-stats-row">
+                                       <div class="vl-stat-card">
+                                           <i class="fas fa-calendar-day"></i>
+                                           <div>
+                                               <span class="vl-stat-value" id="vlHoyTotal">B/ 0.00</span>
+                                               <span class="vl-stat-label">Ventas Hoy</span>
+                                           </div>
+                                       </div>
+                                       <div class="vl-stat-card">
+                                           <i class="fas fa-calendar-alt"></i>
+                                           <div>
+                                               <span class="vl-stat-value" id="vlMesTotal">B/ 0.00</span>
+                                               <span class="vl-stat-label">Ventas Mes</span>
+                                           </div>
+                                       </div>
+                                   </div>
+                                   <div id="vlHistorialList" class="vl-historial-list">
+                                       <p class="muted">Cargando historial...</p>
+                                   </div>
+                               </div>
+                           </div>
+                       </div>
+                    </section>
+
+                    <!-- Ventas Realizadas Locales -->
+                    <section id="ventas-realizadas" class="admin-section">
+                        <div class="section-card">
+                            <div class="card-header">
+                                <div class="header-content">
+                                    <div>
+                                        <h2><i class="fas fa-history"></i> Ventas Realizadas Locales</h2>
+                                        <p>Todas las ventas locales registradas · Editar, reordenar o ver factura</p>
+                                    </div>
+                                    <div class="header-actions">
+                                        <button type="button" class="btn-icon" onclick="cargarVentasRealizadas()" title="Actualizar">
+                                            <i class="fas fa-sync-alt"></i>
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                        <div class="pedidos-lista-wrap">
-                            <div class="pedidos-lista-header-bar">
-                                <h2><i class="fas fa-list-ul"></i> Listado en tiempo real</h2>
-                                <span class="pedidos-count-badge" id="pedidosCountBadge">0 pedidos</span>
+                            <div class="vr-stats-bar">
+                                <div class="vr-stat">
+                                    <i class="fas fa-shopping-bag"></i>
+                                    <span id="vrTotalVentas">0</span>
+                                    <small>Ventas</small>
+                                </div>
+                                <div class="vr-stat">
+                                    <i class="fas fa-dollar-sign"></i>
+                                    <span id="vrTotalIngresos">B/ 0.00</span>
+                                    <small>Ingresos</small>
+                                </div>
+                                <div class="vr-stat">
+                                    <i class="fas fa-calendar-day"></i>
+                                    <span id="vrHoyIngresos">B/ 0.00</span>
+                                    <small>Hoy</small>
+                                </div>
                             </div>
-                            <div class="pedidos-lista pedidos-lista--grid" id="listaPedidosAdmin"></div>
+                            <div class="vr-search-bar">
+                                <i class="fas fa-search"></i>
+                                <input type="text" id="vrSearchInput" placeholder="Buscar por cliente, ID o mesa..." class="form-control" oninput="filtrarVentasRealizadas()">
+                            </div>
+                            <div id="vrListaVentas" class="vr-lista-ventas">
+                                <p class="muted">Cargando ventas...</p>
+                            </div>
                         </div>
-                    </div>
-                </section>
-            </div>
-        </main>
+                    </section>
+
+                   <!-- Analíticas de ventas -->
+                  <section id="analytics" class="admin-section">
+                      <div class="section-card">
+                          <div class="card-header">
+                              <div class="header-content">
+                                  <div>
+                                      <h2><i class="fas fa-chart-line"></i> Analíticas de Ventas</h2>
+                                      <p>Resumen de ventas y desempeño del negocio</p>
+                                  </div>
+                                  <div class="header-actions">
+                                      <button type="button" class="btn-icon" onclick="refreshAnalyticsData()" title="Actualizar datos">
+                                          <i class="fas fa-sync-alt"></i>
+                                      </button>
+                                  </div>
+                              </div>
+                          </div>
+                          <div class="analytics-content">
+                              <div class="date-range-selector">
+                                  <label for="date-range">Periodo:</label>
+                                  <select id="date-range" onchange="filterAnalyticsByDate()">
+                                      <option value="day">Hoy</option>
+                                      <option value="week">Esta semana</option>
+                                      <option value="month" selected>Este mes</option>
+                                      <option value="year">Este año</option>
+                                  </select>
+                                  <span class="period-label" id="period-label">Este mes</span>
+                              </div>
+
+                               <div class="stats-grid">
+                                   <div class="stat-card analytics-stat">
+                                       <div class="stat-icon"><i class="fas fa-dollar-sign"></i></div>
+                                       <div class="stat-info">
+                                           <span class="stat-value" id="total-sales">B/ 0.00</span>
+                                           <span class="stat-label">Ingresos completados</span>
+                                       </div>
+                                   </div>
+                                   <div class="stat-card analytics-stat">
+                                       <div class="stat-icon"><i class="fas fa-receipt"></i></div>
+                                       <div class="stat-info">
+                                           <span class="stat-value" id="total-orders">0</span>
+                                           <span class="stat-label">Pedidos</span>
+                                       </div>
+                                   </div>
+                                   <div class="stat-card analytics-stat">
+                                       <div class="stat-icon"><i class="fas fa-shopping-bag"></i></div>
+                                       <div class="stat-info">
+                                           <span class="stat-value" id="total-items">0</span>
+                                           <span class="stat-label">Unidades vendidas</span>
+                                       </div>
+                                   </div>
+                                   <div class="stat-card analytics-stat">
+                                       <div class="stat-icon"><i class="fas fa-coins"></i></div>
+                                       <div class="stat-info">
+                                           <span class="stat-value" id="avg-order-value">B/ 0.00</span>
+                                           <span class="stat-label">Ticket promedio</span>
+                                       </div>
+                                   </div>
+                               </div>
+
+                               <div class="stats-grid stats-grid--local-delivery">
+                                   <div class="stat-card analytics-stat analytics-stat--local">
+                                       <div class="stat-icon"><i class="fas fa-store"></i></div>
+                                       <div class="stat-info">
+                                           <span class="stat-value" id="local-sales">B/ 0.00</span>
+                                           <span class="stat-label">Ventas Locales</span>
+                                       </div>
+                                   </div>
+                                   <div class="stat-card analytics-stat analytics-stat--local">
+                                       <div class="stat-icon"><i class="fas fa-receipt"></i></div>
+                                       <div class="stat-info">
+                                           <span class="stat-value" id="local-orders">0</span>
+                                           <span class="stat-label">Pedidos Locales</span>
+                                       </div>
+                                   </div>
+                                   <div class="stat-card analytics-stat analytics-stat--delivery">
+                                       <div class="stat-icon"><i class="fas fa-motorcycle"></i></div>
+                                       <div class="stat-info">
+                                           <span class="stat-value" id="delivery-sales">B/ 0.00</span>
+                                           <span class="stat-label">Ventas Delivery</span>
+                                       </div>
+                                   </div>
+                                   <div class="stat-card analytics-stat analytics-stat--delivery">
+                                       <div class="stat-icon"><i class="fas fa-receipt"></i></div>
+                                       <div class="stat-info">
+                                           <span class="stat-value" id="delivery-orders">0</span>
+                                           <span class="stat-label">Pedidos Delivery</span>
+                                       </div>
+                                   </div>
+                               </div>
+
+                              <div class="charts-container">
+                                  <div class="chart-card">
+                                      <h3><i class="fas fa-chart-bar"></i> Ingresos por periodo</h3>
+                                      <div id="daily-sales-chart" class="chart-placeholder chart-bars"></div>
+                                  </div>
+                                  <div class="chart-card">
+                                      <h3><i class="fas fa-fire"></i> Top productos del mes</h3>
+                                      <ol id="top-products-list" class="top-products"></ol>
+                                  </div>
+                              </div>
+                          </div>
+                      </div>
+                  </section>
+
+                  <!-- Gestión de Promos -->
+                  <section id="promos" class="admin-section">
+                      <div class="section-card">
+                          <div class="card-header">
+                              <div class="header-content">
+                                  <div>
+                                      <h2><i class="fas fa-fire"></i> Promociones</h2>
+                                      <p>Crea y gestiona las promos que se muestran en la tienda</p>
+                                  </div>
+                                  <div class="header-actions">
+                                      <button type="button" class="btn-icon" onclick="loadPromosAdmin()" title="Actualizar">
+                                          <i class="fas fa-sync-alt"></i>
+                                      </button>
+                                  </div>
+                              </div>
+                          </div>
+
+                          <form id="promoForm" class="modern-form">
+                              <input type="hidden" id="promoId" name="id">
+                              <div class="form-grid">
+                                  <div class="form-group">
+                                      <label for="promoTitle"><i class="fas fa-tag"></i> Título *</label>
+                                      <input type="text" id="promoTitle" required maxlength="80" placeholder="Ej: 2x1 en Hamburguesas" class="form-control">
+                                  </div>
+                                  <div class="form-group">
+                                      <label for="promoBadge"><i class="fas fa-bookmark"></i> Etiqueta (badge)</label>
+                                      <input type="text" id="promoBadge" maxlength="30" placeholder="Ej: LIMITADA, NUEVA" class="form-control">
+                                  </div>
+                              </div>
+
+                              <div class="form-group">
+                                  <label for="promoDescription"><i class="fas fa-align-left"></i> Descripción</label>
+                                  <textarea id="promoDescription" rows="2" maxlength="400" placeholder="Describe brevemente la promo" class="form-control"></textarea>
+                              </div>
+
+                              <div class="form-grid">
+                                  <div class="form-group">
+                                      <label for="promoIcon"><i class="fas fa-icons"></i> Icono</label>
+                                      <select id="promoIcon" class="form-control">
+                                          <option value="fa-fire">🔥 Fuego</option>
+                                          <option value="fa-bolt">⚡ Rayo</option>
+                                          <option value="fa-gift">🎁 Regalo</option>
+                                          <option value="fa-star">⭐ Estrella</option>
+                                          <option value="fa-percent">% Porcentaje</option>
+                                          <option value="fa-tag">🏷️ Etiqueta</option>
+                                          <option value="fa-burger">🍔 Hamburguesa</option>
+                                          <option value="fa-pizza-slice">🍕 Pizza</option>
+                                          <option value="fa-drumstick-bite">🍗 Pollo</option>
+                                      </select>
+                                  </div>
+                                  <div class="form-group">
+                                      <label for="promoDiscount"><i class="fas fa-percentage"></i> Descuento %</label>
+                                      <input type="number" id="promoDiscount" min="0" max="100" value="0" class="form-control">
+                                  </div>
+                              </div>
+
+                              <div class="form-grid">
+                                  <div class="form-group">
+                                      <label for="promoOriginalPrice"><i class="fas fa-dollar-sign"></i> Precio original (B/.)</label>
+                                      <input type="number" id="promoOriginalPrice" min="0" step="0.01" placeholder="0.00" class="form-control">
+                                  </div>
+                                  <div class="form-group">
+                                      <label for="promoPrice"><i class="fas fa-money-bill-wave"></i> Precio promo (B/.)</label>
+                                      <input type="number" id="promoPrice" min="0" step="0.01" placeholder="0.00" class="form-control">
+                                  </div>
+                              </div>
+
+                              <div class="form-grid">
+                                  <div class="form-group">
+                                      <label for="promoValidFrom"><i class="far fa-calendar"></i> Válido desde <span class="form-hint-inline">(opcional)</span></label>
+                                      <input type="date" id="promoValidFrom" class="form-control">
+                                      <div class="form-hint">Si lo dejas vacío, la promo se mostrará desde hoy</div>
+                                  </div>
+                                  <div class="form-group">
+                                      <label for="promoValidUntil"><i class="far fa-calendar-check"></i> Válido hasta <span class="form-hint-inline">(opcional)</span></label>
+                                      <input type="date" id="promoValidUntil" class="form-control">
+                                      <div class="form-hint">Si lo dejas vacío, la promo no expira</div>
+                                  </div>
+                              </div>
+
+                              <div class="form-grid">
+                                  <div class="form-group">
+                                      <label for="promoImage"><i class="fas fa-image"></i> Imagen (opcional)</label>
+                                      <input type="file" id="promoImage" accept="image/*" class="form-control">
+                                      <div id="promoImagePreview" class="image-preview"></div>
+                                  </div>
+                                  <div class="form-group">
+                                      <div class="checkbox-group" style="margin-top: 32px;">
+                                          <input type="checkbox" id="promoActive" checked class="checkbox-input">
+                                          <label for="promoActive" class="checkbox-label">
+                                              <div class="checkbox-custom"><i class="fas fa-check"></i></div>
+                                              <span>Promo activa (visible en la tienda)</span>
+                                          </label>
+                                      </div>
+                                  </div>
+                              </div>
+
+                              <div id="promoMessage" class="message" hidden></div>
+
+                              <div class="form-actions">
+                                  <button type="button" class="btn-secondary" onclick="resetPromoForm()">
+                                      <i class="fas fa-eraser"></i> Limpiar
+                                  </button>
+                                  <button type="submit" class="btn-primary" id="promoSubmitBtn">
+                                      <i class="fas fa-plus"></i> Crear promo
+                                  </button>
+                              </div>
+                          </form>
+
+                          <h3 style="margin-top: 32px; font-size: 1.1rem; color: #1e293b;">
+                              <i class="fas fa-list"></i> Promos existentes
+                          </h3>
+                          <div id="promosListAdmin" class="categories-grid">
+                              <p class="muted">Cargando promos...</p>
+                          </div>
+                      </div>
+                  </section>
+
+                  <!-- Gestión de Contacto -->
+                  <section id="contacto-admin" class="admin-section">
+                      <div class="section-card">
+                          <div class="card-header">
+                              <h2><i class="fas fa-headset"></i> Información de Contacto</h2>
+                              <p>Edita la información que se muestra en la sección "Contacto" de la tienda</p>
+                          </div>
+
+                          <form id="contactForm" class="modern-form">
+                              <div class="form-grid">
+                                  <div class="form-group">
+                                      <label for="contactBusinessName"><i class="fas fa-store"></i> Nombre del negocio</label>
+                                      <input type="text" id="contactBusinessName" maxlength="80" class="form-control" placeholder="Brazas$Mar">
+                                  </div>
+                                  <div class="form-group">
+                                      <label for="contactTagline"><i class="fas fa-quote-right"></i> Eslogan</label>
+                                      <input type="text" id="contactTagline" maxlength="120" class="form-control" placeholder="Sabor a la brasa">
+                                  </div>
+                              </div>
+
+                              <div class="form-grid">
+                                  <div class="form-group">
+                                      <label for="contactPhone"><i class="fas fa-phone"></i> Teléfono</label>
+                                      <input type="text" id="contactPhone" maxlength="40" class="form-control" placeholder="+507 6110-5082">
+                                  </div>
+                                  <div class="form-group">
+                                      <label for="contactWhatsapp"><i class="fab fa-whatsapp"></i> WhatsApp (sin + ni espacios)</label>
+                                      <input type="text" id="contactWhatsapp" maxlength="20" class="form-control" placeholder="5076110508">
+                                  </div>
+                              </div>
+
+                              <div class="form-grid">
+                                  <div class="form-group">
+                                      <label for="contactEmail"><i class="fas fa-envelope"></i> Email</label>
+                                      <input type="email" id="contactEmail" maxlength="100" class="form-control" placeholder="contacto@brazasmar.local">
+                                  </div>
+                                  <div class="form-group">
+                                      <label for="contactMapsUrl"><i class="fas fa-map-marked-alt"></i> URL Google Maps (opcional)</label>
+                                      <input type="url" id="contactMapsUrl" class="form-control" placeholder="https://maps.google.com/...">
+                                  </div>
+                              </div>
+
+                              <div class="form-group">
+                                  <label for="contactAddress"><i class="fas fa-map-marker-alt"></i> Dirección</label>
+                                  <input type="text" id="contactAddress" maxlength="200" class="form-control" placeholder="Panamá, Ciudad de Panamá">
+                              </div>
+
+                              <h3 style="margin: 24px 0 12px; font-size: 1rem; color: #1e293b;">
+                                  <i class="fas fa-clock"></i> Horarios de atención
+                              </h3>
+                              <div id="contactScheduleEditor" class="schedule-editor">
+                                  <!-- Filas dinámicas de horario -->
+                              </div>
+
+                              <h3 style="margin: 24px 0 12px; font-size: 1rem; color: #1e293b;">
+                                  <i class="fas fa-share-alt"></i> Redes sociales
+                              </h3>
+                              <div class="form-grid">
+                                  <div class="form-group">
+                                      <label for="contactFacebook"><i class="fab fa-facebook"></i> Facebook URL</label>
+                                      <input type="url" id="contactFacebook" class="form-control" placeholder="https://facebook.com/tu-pagina">
+                                  </div>
+                                  <div class="form-group">
+                                      <label for="contactInstagram"><i class="fab fa-instagram"></i> Instagram URL</label>
+                                      <input type="url" id="contactInstagram" class="form-control" placeholder="https://instagram.com/tu-cuenta">
+                                  </div>
+                              </div>
+                              <div class="form-group">
+                                  <label for="contactTiktok"><i class="fab fa-tiktok"></i> TikTok URL</label>
+                                  <input type="url" id="contactTiktok" class="form-control" placeholder="https://tiktok.com/@tu-cuenta">
+                              </div>
+
+                              <div id="contactMessage" class="message" hidden></div>
+
+                              <div class="form-actions">
+                                  <button type="submit" class="btn-primary" id="contactSubmitBtn">
+                                      <i class="fas fa-save"></i> Guardar cambios
+                                  </button>
+                              </div>
+                          </form>
+                      </div>
+                  </section>
+             </div>
+         </main>
 
         <div id="adminNotificationsPanel" class="admin-notifications-panel" hidden>
             <div class="admin-notifications-panel__head">
