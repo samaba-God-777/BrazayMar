@@ -243,10 +243,12 @@ async function agregarAlCarrito(productId, categoria, cantidad = 1) {
                         : productData.precio;
                     imagen = productData.imagen;
                     if (imagen) {
-                        if (!imagen.startsWith('http') && !imagen.startsWith('/')) {
-                            imagen = `${SERVER_ORIGIN}/uploads/${imagen}`;
+                        if (imagen.startsWith('data:') || imagen.startsWith('http')) {
+                            // keep as-is
                         } else if (imagen.startsWith('/')) {
                             imagen = `${SERVER_ORIGIN}${imagen}`;
+                        } else {
+                            imagen = `${SERVER_ORIGIN}/images/placeholder.png`;
                         }
                     } else {
                         imagen = `${SERVER_ORIGIN}/images/placeholder.png`;
@@ -972,9 +974,9 @@ function renderPromos() {
 
 function buildPromoImageUrl(promo) {
     if (!promo.image) return '';
-    if (promo.image.startsWith('http')) return promo.image;
+    if (promo.image.startsWith('data:') || promo.image.startsWith('http')) return promo.image;
     if (promo.image.startsWith('/')) return `${SERVER_ORIGIN}${promo.image}`;
-    return `${SERVER_ORIGIN}/uploads/${promo.image}`;
+    return `${SERVER_ORIGIN}/images/placeholder.png`;
 }
 
 function formatPromoValidity(p) {
@@ -1166,9 +1168,9 @@ function renderMenuSections() {
 
 function buildProductImageUrl(producto) {
     if (!producto.imagen) return `${SERVER_ORIGIN}/images/placeholder.png`;
+    if (producto.imagen.startsWith('data:') || producto.imagen.startsWith('http')) return producto.imagen;
     if (producto.imagen.startsWith('/')) return `${SERVER_ORIGIN}${producto.imagen}`;
-    if (producto.imagen.startsWith('http')) return producto.imagen;
-    return `${SERVER_ORIGIN}/uploads/${producto.imagen}`;
+    return `${SERVER_ORIGIN}/images/placeholder.png`;
 }
 
 function escapeHtml(text) {

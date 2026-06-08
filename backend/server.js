@@ -43,9 +43,6 @@ app.use(morgan(process.env.NODE_ENV === 'production' ? 'combined' : 'dev'));
 const dataDir = path.join(__dirname, 'data');
 if (!fs.existsSync(dataDir)) fs.mkdirSync(dataDir, { recursive: true });
 
-const uploadsDir = path.join(__dirname, 'uploads');
-if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir, { recursive: true });
-
 const frontendImagesDir = path.join(__dirname, '../frontend/images');
 if (!fs.existsSync(frontendImagesDir)) {
     fs.mkdirSync(frontendImagesDir, { recursive: true });
@@ -53,26 +50,23 @@ if (!fs.existsSync(frontendImagesDir)) {
 
 const menuPath = path.join(dataDir, 'menu.json');
 
-const storage = multer.diskStorage({
-    destination: (_req, _file, cb) => cb(null, uploadsDir),
-    filename: (_req, file, cb) => {
-        const ext = path.extname(file.originalname).toLowerCase();
-        cb(null, `${uuidv4()}${ext}`);
-    }
-});
-
 const fileFilter = (_req, file, cb) => {
     const allowed = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif'];
     cb(null, allowed.includes(file.mimetype));
 };
 
 const upload = multer({
-    storage,
+    storage: multer.memoryStorage(),
     fileFilter,
     limits: { fileSize: 5 * 1024 * 1024 }
 });
 
-app.use('/uploads', express.static(uploadsDir));
+app.use('/images', express.static(path.join(__dirname, '../frontend/images')));
+
+function fileToDataUri(file) {
+    if (!file) return null;
+    return `data:${file.mimetype};base64,${file.buffer.toString('base64')}`;
+}
 app.use('/images', express.static(path.join(__dirname, '../frontend/images')));
 
 function parseDestacado(value) {
@@ -246,7 +240,7 @@ app.get('/api/promos/:id', async (req, res) => {
 app.post('/api/promos', authService.requireAuth, authService.requireRole('admin'), upload.single('image'), async (req, res) => {
     try {
         let imageUrl = req.body.image || '';
-        if (req.file) imageUrl = `/uploads/${req.file.filename}`;
+        if (req.file) imageUrl = fileToDataUri(req.file) || imageUrl;
         const data = { ...req.body, image: imageUrl };
         if (typeof data.productIds === 'string' && data.productIds) {
             data.productIds = data.productIds.split(',').map((s) => s.trim()).filter(Boolean);
@@ -261,7 +255,7 @@ app.post('/api/promos', authService.requireAuth, authService.requireRole('admin'
 app.put('/api/promos/:id', authService.requireAuth, authService.requireRole('admin'), upload.single('image'), async (req, res) => {
     try {
         const data = { ...req.body };
-        if (req.file) data.image = `/uploads/${req.file.filename}`;
+        if (req.file) data.image = fileToDataUri(req.file) || data.image;
         if (typeof data.productIds === 'string') {
             data.productIds = data.productIds.split(',').map((s) => s.trim()).filter(Boolean);
         }
@@ -325,7 +319,7 @@ app.post('/api/products', authService.requireAuth, authService.requireRole('admi
         }
 
         let imagenUrl = '/images/placeholder.png';
-        if (req.file) imagenUrl = `/uploads/${req.file.filename}`;
+        if (req.file) imagenUrl = fileToDataUri(req.file) || imagenUrl;
 
         const newProduct = await productService.createProduct({
             nombre: name,
@@ -371,12 +365,7 @@ app.put('/api/products/:id', authService.requireAuth, authService.requireRole('a
         };
 
         if (req.file) {
-            const oldImage = existing.imagen;
-            if (oldImage && oldImage.startsWith('/uploads/')) {
-                const oldPath = path.join(uploadsDir, path.basename(oldImage));
-                if (fs.existsSync(oldPath)) fs.unlinkSync(oldPath);
-            }
-            updateData.imagen = `/uploads/${req.file.filename}`;
+            updateData.imagen = fileToDataUri(req.file) || existing.imagen;
         }
 
         const updated = await productService.updateProduct(id, updateData);
@@ -391,12 +380,6 @@ app.delete('/api/products/:id', authService.requireAuth, authService.requireRole
     try {
         const deleted = await productService.deleteProduct(req.params.id);
         if (!deleted) return res.status(404).json({ error: 'Producto no encontrado' });
-
-        const imageToDelete = deleted.imagen;
-        if (imageToDelete && imageToDelete.startsWith('/uploads/')) {
-            const imagePath = path.join(uploadsDir, path.basename(imageToDelete));
-            if (fs.existsSync(imagePath)) fs.unlinkSync(imagePath);
-        }
 
         res.json({ message: '✅ Producto eliminado correctamente' });
     } catch (error) {
@@ -701,11 +684,7 @@ app.get('/admin/pedidos', (_req, res) => {
 });
 
 app.get('/api/images', (_req, res) => {
-    try {
-        res.json(fs.readdirSync(uploadsDir));
-    } catch {
-        res.json([]);
-    }
+    res.json([]);
 });
 
 app.use('/api', (req, res) => {

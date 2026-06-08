@@ -226,12 +226,12 @@
     // Helper: construir URL de imagen
     function buildProductImageUrl(imagen) {
         if (!imagen) return `${(window.AppConfig?.SERVER_ORIGIN) || ''}/images/placeholder.png`;
-        if (imagen.startsWith('http')) return imagen;
+        if (imagen.startsWith('data:') || imagen.startsWith('http')) return imagen;
         if (imagen.startsWith('/')) {
             if (imagen.startsWith('//')) return imagen;
             return `${(window.AppConfig?.SERVER_ORIGIN) || ''}${imagen}`;
         }
-        return `${(window.AppConfig?.SERVER_ORIGIN) || ''}/uploads/${imagen}`;
+        return `${(window.AppConfig?.SERVER_ORIGIN) || ''}/images/placeholder.png`;
     }
 
     // Helper: escape HTML

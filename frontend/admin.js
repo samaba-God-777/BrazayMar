@@ -46,9 +46,9 @@ function getServerOrigin() {
 
 function buildImageUrl(imagen) {
     if (!imagen) return `${getServerOrigin()}/images/placeholder.png`;
-    if (imagen.startsWith('http') || imagen.startsWith('//')) return imagen;
+    if (imagen.startsWith('data:') || imagen.startsWith('http') || imagen.startsWith('//')) return imagen;
     if (imagen.startsWith('/')) return `${getServerOrigin()}${imagen}`;
-    return `${getServerOrigin()}/uploads/${imagen}`;
+    return `${getServerOrigin()}/images/placeholder.png`;
 }
 
 function showToast(texto, tipo = 'success') {
@@ -922,7 +922,7 @@ async function editPromo(id) {
         document.getElementById('promoValidUntil').value = data.validUntil ? new Date(data.validUntil).toISOString().slice(0, 10) : '';
         document.getElementById('promoActive').checked = data.active !== false;
         const preview = document.getElementById('promoImagePreview');
-        preview.innerHTML = data.image ? `<img src="${data.image.startsWith('/') ? data.image : '/uploads/' + data.image}" alt="preview">` : '';
+        preview.innerHTML = data.image ? `<img src="${data.image.startsWith('data:') || data.image.startsWith('http') || data.image.startsWith('/') ? data.image : data.image}" alt="preview">` : '';
 
         document.getElementById('promoSubmitBtn').innerHTML = '<i class="fas fa-save"></i> Actualizar promo';
         document.getElementById('promoForm').scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -1085,9 +1085,9 @@ function getServerOriginVL() {
 
 function buildImageUrlVL(imagen) {
     if (!imagen) return `${getServerOriginVL()}/images/placeholder.png`;
-    if (imagen.startsWith('http') || imagen.startsWith('//')) return imagen;
+    if (imagen.startsWith('data:') || imagen.startsWith('http') || imagen.startsWith('//')) return imagen;
     if (imagen.startsWith('/')) return `${getServerOriginVL()}${imagen}`;
-    return `${getServerOriginVL()}/uploads/${imagen}`;
+    return `${getServerOriginVL()}/images/placeholder.png`;
 }
 
 async function initVentasLocales() {
