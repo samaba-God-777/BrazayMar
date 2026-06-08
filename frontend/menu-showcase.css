@@ -1397,3 +1397,83 @@ html { scroll-behavior: smooth; }
     .contacto-section { padding: 60px 16px 60px; }
     .contacto-grid { grid-template-columns: 1fr; }
 }
+
+/* ---- Touch targets y mobile fixes ---- */
+@media (max-width: 768px) {
+    .product-showcase__body { padding: 28px 20px 32px; }
+    .showcase__empty { padding: 60px 20px; }
+    .promos-section { padding: 60px 16px 40px; }
+    .contacto-section { padding: 60px 16px 60px; }
+    .menu-section { padding: 48px 16px 32px; }
+
+    .topbar__chip {
+        padding: 8px 14px 8px 10px;
+        min-height: 44px;
+    }
+    .topbar__nav-link {
+        padding: 10px 14px;
+        min-height: 44px;
+    }
+    .topbar__icon-btn {
+        width: 44px;
+        height: 44px;
+    }
+
+    .showcase__dot {
+        width: 12px;
+        height: 12px;
+        min-width: 12px;
+    }
+    .showcase__dot.active {
+        width: 28px;
+        min-width: 28px;
+    }
+    .showcase__play-pause {
+        width: 36px;
+        height: 36px;
+        font-size: 1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .product-showcase__body { padding: 20px 16px 24px; }
+    .product-showcase__title { font-size: 1.4rem; }
+    .product-showcase__price { font-size: 1.3rem; }
+    .product-showcase__cta { min-width: unset; padding: 14px 24px; font-size: 0.95rem; }
+
+    .showcase__dot {
+        width: 10px;
+        height: 10px;
+        min-width: 10px;
+    }
+    .showcase__dot.active {
+        width: 24px;
+        min-width: 24px;
+    }
+    .showcase__play-pause {
+        width: 40px;
+        height: 40px;
+    }
+    .showcase__empty { padding: 40px 16px; }
+
+    .promos-section { padding: 48px 12px 32px; }
+    .promo-card__title { font-size: 1rem; }
+    .promo-card__price-new { font-size: 1.2rem; }
+
+    .contacto-section { padding: 48px 12px 48px; }
+    .contacto-card__value { font-size: 0.95rem; }
+
+    .topbar__chip {
+        padding: 6px 10px 6px 8px;
+        font-size: 0.8rem;
+        gap: 6px;
+    }
+    .topbar__nav-link {
+        padding: 8px 10px;
+        font-size: 0.85rem;
+    }
+    .topbar__icon-btn {
+        width: 40px;
+        height: 40px;
+    }
+}
