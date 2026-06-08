@@ -4,8 +4,9 @@ services:
     runtime: node
     region: oregon
     plan: free
-    buildCommand: cd backend && npm install
-    startCommand: cd backend && npm start
+    rootDir: .
+    buildCommand: npm install --prefix backend
+    startCommand: node backend/server.js
     envVars:
       - key: NODE_ENV
         value: production
@@ -14,7 +15,7 @@ services:
       - key: AUTH_SECRET
         generateValue: true
       - key: CORS_ORIGIN
-        value: https://brazasmar.onrender.com
+        value: '*'
       - key: ADMIN_EMAIL
         value: admin@brazasmar.com
       - key: ADMIN_PASSWORD
