@@ -1439,7 +1439,7 @@ html { scroll-behavior: smooth; }
     .product-showcase__body { padding: 20px 16px 24px; }
     .product-showcase__title { font-size: 1.4rem; }
     .product-showcase__price { font-size: 1.3rem; }
-    .product-showcase__cta { min-width: unset; padding: 14px 24px; font-size: 0.95rem; }
+    .product-showcase__cta { width: 100%; min-width: unset; padding: 14px 24px; font-size: 0.95rem; }
 
     .showcase__dot {
         width: 10px;
