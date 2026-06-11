@@ -1439,7 +1439,7 @@ html { scroll-behavior: smooth; }
     .product-showcase__body { padding: 20px 16px 24px; }
     .product-showcase__title { font-size: 1.4rem; }
     .product-showcase__price { font-size: 1.3rem; }
-    .product-showcase__cta { width: 100%; min-width: unset; padding: 14px 24px; font-size: 0.95rem; }
+    .product-showcase__cta { width: 100%; min-width: unset; padding: 12px 16px; font-size: 0.85rem; gap: 8px; }
 
     .showcase__dot {
         width: 10px;
@@ -1476,4 +1476,11 @@ html { scroll-behavior: smooth; }
         width: 40px;
         height: 40px;
     }
+}
+
+@media (max-width: 380px) {
+    .product-showcase__body { padding: 16px 12px 20px; }
+    .product-showcase__title { font-size: 1.2rem; }
+    .product-showcase__price { font-size: 1.1rem; }
+    .product-showcase__cta { padding: 10px 14px; font-size: 0.8rem; gap: 6px; }
 }
