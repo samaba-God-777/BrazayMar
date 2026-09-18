@@ -98,6 +98,28 @@ const AuthService = {
         return data;
     },
 
+    async forgotPassword(email) {
+        const response = await fetch(`${this.getApiBase()}/auth/forgot-password`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email })
+        });
+        const data = await AppConfig.parseJsonResponse(response);
+        if (!response.ok) throw new Error(data.error || 'Error al enviar el enlace');
+        return data;
+    },
+
+    async resetPassword(token, newPassword) {
+        const response = await fetch(`${this.getApiBase()}/auth/reset-password`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ token, newPassword })
+        });
+        const data = await AppConfig.parseJsonResponse(response);
+        if (!response.ok) throw new Error(data.error || 'Error al restablecer la contraseña');
+        return data;
+    },
+
     async verifySession() {
         const token = this.getToken();
         if (!token) return null;

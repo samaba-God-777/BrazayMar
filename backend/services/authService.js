@@ -208,6 +208,65 @@ async function changePassword(userId, currentPassword, newPassword) {
     return user;
 }
 
+async function forgotPassword(email) {
+    if (!email || !EMAIL_RE.test(email)) {
+        const err = new Error('Email inválido');
+        err.status = 400;
+        throw err;
+    }
+    const user = await User.findOne({ email: email.toLowerCase() });
+    if (!user) {
+        return { message: 'Si el email existe, se envió un enlace de recuperación.' };
+    }
+
+    const token = crypto.randomBytes(32).toString('hex');
+    const expires = new Date(Date.now() + 60 * 60 * 1000);
+
+    user.resetPasswordToken = token;
+    user.resetPasswordExpires = expires;
+    await user.save();
+
+    console.log(`🔑 Password reset token for ${user.email}: ${token}`);
+    console.log(`   Expires: ${expires.toISOString()}`);
+
+    return {
+        message: 'Si el email existe, se envió un enlace de recuperación.',
+        resetUrl: `/restablecer?token=${token}`
+    };
+}
+
+async function resetPassword(token, newPassword) {
+    if (!token || typeof token !== 'string') {
+        const err = new Error('Token inválido');
+        err.status = 400;
+        throw err;
+    }
+    if (!newPassword || newPassword.length < 6) {
+        const err = new Error('La nueva contraseña debe tener al menos 6 caracteres');
+        err.status = 400;
+        throw err;
+    }
+
+    const user = await User.findOne({
+        resetPasswordToken: token,
+        resetPasswordExpires: { $gt: new Date() }
+    });
+
+    if (!user) {
+        const err = new Error('Token inválido o expirado');
+        err.status = 400;
+        throw err;
+    }
+
+    user.passwordHash = User.hashPassword(newPassword);
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpires = undefined;
+    user.updatedAt = new Date();
+    await user.save();
+
+    return user;
+}
+
 function getUserFromRequest(req) {
     const authHeader = req.headers.authorization || '';
     const token = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : '';
@@ -245,5 +304,7 @@ module.exports = {
     getUserById,
     updateProfile,
     changePassword,
+    forgotPassword,
+    resetPassword,
     hashPassword: User.hashPassword
 };

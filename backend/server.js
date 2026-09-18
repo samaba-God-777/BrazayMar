@@ -157,6 +157,30 @@ app.post('/api/auth/logout', (_req, res) => {
     res.json({ message: 'Sesión cerrada' });
 });
 
+// ============== RECUPERACIÓN DE CONTRASEÑA ==============
+
+app.post('/api/auth/forgot-password', authLimiter, async (req, res) => {
+    try {
+        const { email } = req.body || {};
+        const result = await authService.forgotPassword(email);
+        res.json(result);
+    } catch (error) {
+        console.error('Error en forgot-password:', error.message);
+        res.status(error.status || 500).json({ error: error.message || 'Error al procesar la solicitud' });
+    }
+});
+
+app.post('/api/auth/reset-password', authLimiter, async (req, res) => {
+    try {
+        const { token, newPassword } = req.body || {};
+        await authService.resetPassword(token, newPassword);
+        res.json({ message: 'Contraseña actualizada correctamente. Ya puedes iniciar sesión.' });
+    } catch (error) {
+        console.error('Error en reset-password:', error.message);
+        res.status(error.status || 500).json({ error: error.message || 'Error al restablecer la contraseña' });
+    }
+});
+
 // ============== MENÚ / PRODUCTOS ==============
 
 app.get('/api/menu', async (_req, res) => {
@@ -793,6 +817,14 @@ app.get('/registro', (_req, res) => {
 
 app.get('/mi-cuenta', (_req, res) => {
     res.sendFile(path.join(__dirname, '../frontend/account.html'));
+});
+
+app.get('/olvide-contrasena', (_req, res) => {
+    res.sendFile(path.join(__dirname, '../frontend/forgot-password.html'));
+});
+
+app.get('/restablecer', (_req, res) => {
+    res.sendFile(path.join(__dirname, '../frontend/reset-password.html'));
 });
 
 app.get('/admin/pedidos', (_req, res) => {

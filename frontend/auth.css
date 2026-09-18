@@ -298,6 +298,15 @@ body.auth-body::before {
 }
 .auth-footer a:hover { text-decoration: underline; }
 
+.auth-forgot-link {
+    color: var(--primary);
+    text-decoration: none;
+    font-size: 0.88rem;
+    font-weight: 600;
+    transition: color 0.2s;
+}
+.auth-forgot-link:hover { text-decoration: underline; color: var(--primary-dark); }
+
 .auth-hint {
     margin-top: 18px;
     padding: 12px 14px;
