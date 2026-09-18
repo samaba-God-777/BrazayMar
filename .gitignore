@@ -29,3 +29,6 @@ logs/
 
 # Uploads
 backend/uploads/
+
+# Graphify
+graphify-out/
